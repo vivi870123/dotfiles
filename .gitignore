@@ -1,0 +1,11 @@
+themes
+tags
+node_modules
+node
+local
+*~
+.tern-port
+.netrwhist
+*.code-workspace
+session/
+packer_compiled.vim

@@ -1,0 +1,52 @@
+- defaults:
+    link:
+      create: true
+      relink: true
+
+- create:
+    - ~/.ssh
+    - ~/.config
+    - ~/.local
+    - ~/projects
+
+- clean: ["~"]
+
+- link:
+    ~/.dotfiles: ""
+    ~/.config/tmux/tmux.conf: 
+      force: true
+      path: tmux/.config/tmux/tmux.conf
+    ~/.zshrc: .config/zsh/.zshrc
+    ~/.zshenv: .config/zsh/zshenv
+    ~/.gitconfig: git/.gitconfig
+    ~/.gitmessage: git/.gitmessage
+    ~/.config/shell: .config/shell
+    ~/.config/nvim: .config/nvim
+    ~/.config/kitty:
+      force: true
+      path: .config/kitty
+    ~/.config/alacritty/alacritty.yml:
+      force: true
+      path: .config/alacritty/alacritty.yml
+    ~/.config/lazygit/config.yml:
+      force: true
+      path: .config/lazygit/config.yml
+    ~/.config/mpv: .config/mpv
+    ~/.config/newsboat: .config/newsboat
+    ~/.config/sxiv: .config/sxiv  
+    ~/.config/composer/composer.json: 
+      force: true
+      path: .config/composer/composer.json 
+    ~/.config/vifm:
+      force: true
+      path: .config/vifm
+    ~/.config/zathura/config.yml:
+      force: true
+      path: .config/config.yml
+    ~/.bin:
+      path: .local/bin/*
+      glob: true
+
+- shell:
+  - [git submodule update --init --recursive, Installing submodules]
+  - [cp ./git/config.template ~/.gitconfig.local]

@@ -1,0 +1,131 @@
+#!/usr/bin/zsh
+#=======================================================================
+#       ENV VARIABLES
+#=======================================================================
+export DOTFILES=$HOME/.dotfiles
+export PROJECTS_DIR=$HOME/projects
+export PERSONAL_PROJECTS_DIR=$PROJECTS_DIR/personal
+
+# Default programs:
+export EDITOR="nvim"
+export TERMINAL="kitty"
+export BROWSER="firefox"
+export READER="zathura"
+export FILE="vifm"
+export FILEBROWSER="$TERMINAL -e bash $HOME/.config/vifm/scripts/vifmrun"
+export MUSIC="cmus"
+export AUDIO="pulsemixer"
+export PROCESS="vtop"
+export TORRENT="transmission-remote-gtk"
+export NOTES_DIR="~/Documents/notes"
+
+# ~/ Clean-up:
+export XDG_CONFIG_HOME="$HOME/.config"
+export XDG_DATA_HOME="$HOME/.local/share"
+export XDG_CACHE_HOME="$HOME/.cache"
+export NOTMUCH_CONFIG="${XDG_CONFIG_HOME:-$HOME/.config}/notmuch-config"
+export LESSHISTFILE="-"
+export PASSWORD_STORE_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/password-store"
+export TMUX_TMPDIR="$XDG_RUNTIME_DIR"
+export ANDROID_SDK_HOME="${XDG_CONFIG_HOME:-$HOME/.config}/android"
+export CARGO_HOME="${XDG_DATA_HOME:-$HOME/.local/share}/cargo"
+export ANSIBLE_CONFIG="${XDG_CONFIG_HOME:-$HOME/.config}/ansible/ansible.cfg"
+export UNISON="${XDG_DATA_HOME:-$HOME/.local/share}/unison"
+export HISTFILE="${XDG_DATA_HOME:-$HOME/.local/share}/history"
+
+export LESS=-R
+export LESS_TERMCAP_mb="$(printf '%b' '[1;31m')"
+export LESS_TERMCAP_md="$(printf '%b' '[1;36m')"
+export LESS_TERMCAP_me="$(printf '%b' '[0m')"
+export LESS_TERMCAP_so="$(printf '%b' '[01;44;33m')"
+export LESS_TERMCAP_se="$(printf '%b' '[0m')"
+export LESS_TERMCAP_us="$(printf '%b' '[1;32m')"
+export LESS_TERMCAP_ue="$(printf '%b' '[0m')"
+
+export ZDOTDIR=$DOTFILES/zsh
+
+# @see: https://github.com/BurntSushi/ripgrep/blob/master/GUIDE.md#configuration-file
+if which rg >/dev/null; then
+  export RIPGREP_CONFIG_PATH=$DOTFILES/.config/rg/.ripgreprc
+fi
+
+if which wget >/dev/null; then
+  export WGETRC=$DOTFILES/.config/wget/wgetrc
+fi
+
+if which go >/dev/null; then
+  export GOPATH="${XDG_DATA_HOME:-$HOME/.local/share}/go"
+  path+=("$GOPATH/bin")
+fi
+
+if which composer >/dev/null; then
+  path+=("$HOME/.config/composer/vendor/bin")
+fi
+
+if which yarn >/dev/null; then
+  path+=("$(yarn global bin)")
+fi
+
+# Added by n-install (see http://git.io/n-install-repo).
+if [ -d "$HOME/n" ]; then
+  export N_PREFIX="$HOME/n"; [[ :$PATH: == *":$N_PREFIX/bin:"* ]] || PATH+=":$N_PREFIX/bin"
+fi
+
+[ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
+
+path+=(
+  "$HOME/.npm/bin"
+  "$HOME/.local/bin"
+)
+
+if [ -d "$HOME/bin" ] ; then
+  path+=("$HOME/bin")
+fi
+
+export MANPATH="/usr/local/man:$MANPATH"
+
+
+# preferred editor for local and remote sessions
+if [ -n "$NVIM_LISTEN_ADDRESS" ]; then
+    export VISUAL="nvr -cc split --remote-wait +'set bufhidden=wipe'"
+    export EDITOR="nvr -cc split --remote-wait +'set bufhidden=wipe'"
+else
+    export VISUAL="nvim"
+    export EDITOR="nvim"
+fi
+
+export USE_EDITOR=$EDITOR
+
+if [ -f "$HOME/.environment.secret.sh" ]; then
+  source $HOME/.environment.secret.sh
+fi
+
+# ssh
+export SSH_KEY_PATH="~/.ssh/rsa_id"
+
+export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=241'
+
+if ! type "$bat" > /dev/null; then
+  export BAT_THEME="TwoDark"
+fi
+
+# Setting ag as the default source for fzf
+
+# --files: List files that would be searched but do not search
+# --no-ignore: Do not respect .gitignore, etc...
+# --hidden: Search hidden files and folders
+# --follow: Follow symlinks
+# --glob: Additional conditions for search (in this case ignore everything in the .git/ folder)
+# Need to escape the "!" and "*" characters using /
+# --no-ignore = this flag shows node modules etc
+export FZF_DEFAULT_COMMAND='rg --files --no-ignore-vcs --hidden'
+export FZF_DEFAULT_OPTS="--prompt='» ' --pointer='->' --marker='✓ ' --reverse --tabstop 2 --multi --color=bg+:-1,marker:010 --bind '?:toggle-preview'"
+export FZF_PREVIEW_COMMAND="bat --style=numbers,changes --wrap never --color always {} || cat {} || tree -C {}"
+
+# To apply to the command to CTRL-T as well
+export FZF_CTRL_T_OPTS="--preview '($FZF_PREVIEW_COMMAND) 2> /dev/null' --preview-window down:60%:noborder"
+export FZF_CTRL_R_OPTS="--preview 'echo {}' --preview-window down:3:wrap:hidden --bind 'ctrl-y:execute-silent(echo -n {2..} | pbcopy)+abort' --header 'Press CTRL-Y to copy command into clipboard'"
+export FZF_ALT_C_OPTS="--preview 'tree -C {} 2> /dev/nul"
+
+# Don't open FZF in a separate split in tmux
+export FZF_TMUX=0
