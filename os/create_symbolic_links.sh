@@ -11,9 +11,8 @@ create_symlinks() {
         ".config/zsh/zshenv"
         ".config/zsh/.zshrc"
 
-        "git/.gitmesage"
-        "git/.gitconfig"
-        "git/.gitignore"
+        "git/gitconfig"
+        "git/gitignore"
     )
 
     local i=""
