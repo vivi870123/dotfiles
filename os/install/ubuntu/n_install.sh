@@ -10,10 +10,13 @@ install_plugins() {
 
     declare -r N_URL="https://git.io/n-install"
 
-    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    
     # Install plugin.
-    curl $N_URL -L | bash -s -- -y
+    if [ ! -f ~/n/bin/n ]; then
+      curl $N_URL -L | bash -s -- -y
+    fi
 }
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

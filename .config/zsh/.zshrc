@@ -16,13 +16,7 @@ compinit
 #-------------------------------------------------------------------------------
 #           Plugins
 #-------------------------------------------------------------------------------
-# These should be source *BEFORE* setting up hooks
-# source $PLUGIN_DIR/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-# source $PLUGIN_DIR/zsh-autosuggestions/zsh-autosuggestions.zsh
-# source $PLUGIN_DIR/zsh-completions/zsh-completions.plugin.zsh
-# source $PLUGIN_DIR/alias-tips/alias-tips.plugin.zsh
 source $ZDOTDIR/zplug.zsh
-
 autoload zmv # builtin zsh rename command
 
 
@@ -463,3 +457,5 @@ bindkey -s '^f' 'cd "$(dirname "$(fzf)")"\n'
 [ -f "${XDG_CONFIG_HOME:-$HOME/.config}/shell/zshnameddirrc" ] && source "${XDG_CONFIG_HOME:-$HOME/.config}/shell/zshnameddirrc"
 
 
+# source cargo
+[ -f "$CARGO_HOME/env" ] && . "$CARGO_HOME/env"

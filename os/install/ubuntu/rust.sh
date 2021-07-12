@@ -8,7 +8,8 @@ cd "$(dirname "${BASH_SOURCE[0]}")" \
 install_plugin() {
 
     # Install plugin.
-    install_package "Cargo" "cargo"
+#    install_package "Cargo" "cargo"
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
     if cmd_exists cargo; then
       cargo install stylua
