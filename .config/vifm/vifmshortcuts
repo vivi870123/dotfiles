@@ -58,7 +58,7 @@ map cfp :e /home/chris/.config/polybar/config<CR>
 map cfi :e /home/chris/.config/i3/config<CR> 
 map cfv :e /home/chris/.config/nvim/init.vim<CR> 
 map cfz :e /home/chris/.dotfiles/.config/zsh/.zshrc<CR> 
-map cfa :e /home/chris/.config/.config/zsh/scripts/alias.zsh<CR> 
+map cfa :e /home/chris/.config/zsh/scripts/alias.zsh<CR> 
 map cfn :e /home/chris/.config/newsboat/config<CR> 
 map cfu :e /home/chris/.config/newsboat/urls<CR> 
 map cfmb :e /home/chris/.config/ncmpcpp/bindings<CR> 

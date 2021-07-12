@@ -73,6 +73,7 @@ alias \
 	magit="nvim -c MagitOnly" \
 	:q="exit" \
 	j="z" \
+	ji="zi" \
 	c="clear" \
 	clear-password-cache="gpgconf --reload gpg-agent" \
 	tmux="tmux -f ${XDG_CONFIG_HOME:-$HOME/.config}/tmux/tmux.conf" \
@@ -131,3 +132,10 @@ alias \
 	isr="php artisan infyom.scaffold:request" \
 	isv="php artisan infyom.scaffold:views" \
 	test="./vendor/bin/phpunit"
+
+# Shorter commands for the `Advanced Packaging Tool`
+alias \
+	ai="sudo apt-get install" \
+	ar="sudo apt-get remove" \
+	as="sudo apt-cache search" \
+	au="sudo apt-get update && sudo apt-get upgrade" 

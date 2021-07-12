@@ -7,8 +7,6 @@ typeset -A __DOTS
 __DOTS[ITALIC_ON]=$'\e[3m'
 __DOTS[ITALIC_OFF]=$'\e[23m'
 
-PLUGIN_DIR=$ZDOTDIR/zsh/plugins
-
 # Init completions
 autoload -Uz compinit
 compinit
@@ -43,10 +41,10 @@ zstyle ':completion:*' rehash true
 zstyle -e ':completion:*' special-dirs '[[ $PREFIX = (../)#(..) ]] && reply=(..)'
 
 # Categorize completion suggestions with headings:
-# zstyle ':completion:*' group-name ''
+zstyle ':completion:*' group-name ''
 
 # Style the group names
-# zstyle ':completion:*' format %F{yellow}%B%U%{$__DOTS[ITALIC_ON]%}%d%{$__DOTS[ITALIC_OFF]%}%b%u%f
+zstyle ':completion:*' format %F{yellow}%B%U%{$__DOTS[ITALIC_ON]%}%d%{$__DOTS[ITALIC_OFF]%}%b%u%f
 
 # Added by running `compinstall`
 zstyle ':completion:*' expand suffix

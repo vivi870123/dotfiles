@@ -8,6 +8,7 @@ cd "$(dirname "${BASH_SOURCE[0]}")" \
 
 print_in_purple "\n   Installing Packages\n\n"
 
+install_package "Kitty" "kitty"
 install_package "Python" "python"
 install_package "python3 pip" "python3-pip"
 install_package "Preload" "preload"

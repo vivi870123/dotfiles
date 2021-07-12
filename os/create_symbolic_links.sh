@@ -9,7 +9,6 @@ create_symlinks() {
 
     declare -a FILES_TO_SYMLINK=(
         ".config/zsh/zshenv"
-        ".config/zsh/zshrc"
 
         "git/gitconfig"
         "git/gitignore"
@@ -132,32 +131,22 @@ create_local_symlinks() {
 
 create_config_symlinks() {
     declare -a FILES_TO_SYMLINK=(
-	alacritty/alacritty.yml
-	composer/composer.json
-	kitty/kitty.conf
-	kitty/onedark.conf
-	kitty/zoom_toggle.py
-	lazygit/config.yml
+	alacritty
+	composer
+	kitty
+	lazygit
 	mpv/input.conf
 	mpv/mpv.conf
-	mpv/scripts/appendURL.lua
-	mpv/scripts/mpv-acestreem.lua
-	mpv/scripts/notify.lua
-	mpv/scripts/playlistmanager.lua
-	mpv/scripts/seek-to.lua
-	mpv/scripts/titleresolver.lua
-	mpv/scripts/umpv
-	newsboat/config
-	newsboat/urls
-	rg/ripgreprc
-	shell/bm-dirs
-	shell/bm-files
-	shell/shortcutrc
-	shell/zshnameddirrc
-	sxiv/exec/key-handler
-	tmux/tmux.conf
+	mpv/scripts
+	newsboat
+	rg
+	shell
+	sxiv
+	tmux
 	vifm
+	wget
 	zsh
+	zathura
 )
 
 local i=""
