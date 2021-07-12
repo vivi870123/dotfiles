@@ -1,8 +1,8 @@
 source ~/.zplug/init.zsh
 
-zplug "zsh-users/djui/alias-tips"
+zplug "djui/alias-tips"
 zplug "zsh-users/zsh-syntax-highlighting"
-zplug "zsh-users/zsh-autosuggestion"
+zplug "zsh-users/zsh-autosuggestions"
 zplug "zsh-users/zsh-completions"
 
 # Install plugins if there are plugins that have not been installed
@@ -14,4 +14,4 @@ if ! zplug check --verbose; then
 fi
 
 # Then, source plugins and add commands to $PATH
-zplug load --verbose
+zplug load

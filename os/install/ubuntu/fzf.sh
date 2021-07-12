@@ -1,7 +1,8 @@
 #!/bin/bash
 
 cd "$(dirname "${BASH_SOURCE[0]}")" \
-    && . "../utils.sh"
+    && . "../../utils.sh" \
+    && . "./utils.sh"
 
 declare -r FZF_DIR="$HOME/.fzf"
 declare -r FZF_GIT_REPO_URL="https://github.com/junegunn/fzf.git"
@@ -16,7 +17,7 @@ download_fzf() {
 }
 
 install_fzf() {
-    execute  ". $FZF_DIR/install"  "Installing fzf"
+    . $FZF_DIR/install
 }
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -32,5 +33,3 @@ main() {
 }
 
 main
-
-

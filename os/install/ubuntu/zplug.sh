@@ -1,7 +1,8 @@
 #!/bin/bash
 
 cd "$(dirname "${BASH_SOURCE[0]}")" \
-    && . "../utils.sh"
+    && . "../../utils.sh" \
+    && . "./utils.sh"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 install_plugins() {
@@ -25,7 +26,6 @@ main() {
 
     print_in_purple "\n   ZPlug\n\n"
 
-    "./$(get_os)/zplug.sh"
     install_plugins
 
 }

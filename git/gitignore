@@ -9,3 +9,5 @@ local
 *.code-workspace
 session/
 packer_compiled.vim
+*.swp
+.zcompdump

@@ -6,24 +6,9 @@ cd "$(dirname "${BASH_SOURCE[0]}")" \
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-print_in_purple "\n   Build Essentials\n\n"
-
-# Install tools for compiling/building software from source.
-install_package "Build Essential" "build-essential"
-
-# GnuPG archive keys of the Debian archive.
-install_package "GnuPG archive keys" "debian-archive-keyring"
-
-# Software which is not included by default
-# in Ubuntu due to legal or copyright reasons.
-# install_package "Ubuntu Restricted Extras" "ubuntu-restricted-extras"
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
 print_in_purple "\n   Installing Packages\n\n"
 
 install_package "Python" "python"
-install_package "Python pip" "python-pip"
 install_package "python3 pip" "python3-pip"
 install_package "Preload" "preload"
 install_package "gcc" "gcc"
@@ -40,7 +25,6 @@ install_package "automake" "automake"
 install_package "software-properties-common" "software-properties-common"
 install_package "delta" "delta"
 install_package "git" "git"
-install_package "lazygit" "lazygit"
 install_package "wget" "wget"
 install_package "curl" "curl"
 install_package "xclip" "xclip"
@@ -71,7 +55,6 @@ install_package "transmission" "transmission-gtk"
 install_package "cmus" "cmus"
 install_package "jq" "jq"
 install_package "composer" "composer"
-install_package "odttotext" "odttotext"
-install_package "docxtotext" "docxtotext"
 install_package "ctags" "exuberant-ctags"
 install_package "shellcheck" "shellcheck"
+install_package "golang" "golang-go "

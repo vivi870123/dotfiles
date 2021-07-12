@@ -1,19 +1,14 @@
-
 #!/bin/bash
 
 cd "$(dirname "${BASH_SOURCE[0]}")" \
-    && . "../utils.sh"
+    && . "../../utils.sh" \
+    && . "./utils.sh"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-install_plugins() {
-
-    declare -r CARGO_URL="https://sh.rustup.rs"
-
-    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+install_plugin() {
 
     # Install plugin.
-
-    execute "curl $CARGO_URL -sSf | sh" "Install plugins" || return 1
+    install_package "Cargo" "cargo"
 
     if cmd_exists cargo; then
       cargo install stylua
@@ -33,8 +28,7 @@ main() {
 
     print_in_purple "\n   Rust & Cargo\n\n"
 
-    "./$(get_os)/rust.sh"
-    install_plugins
+    install_plugin
 
 }
 

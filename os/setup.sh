@@ -8,7 +8,7 @@ declare -r DOTFILES_UTILS_URL="https://raw.githubusercontent.com/$GITHUB_REPOSIT
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-declare dotfilesDirectory="$HOME/projects/dotfiles"
+declare dotfilesDirectory="$HOME/.dotfiles"
 declare skipQuestions=false
 
 # ----------------------------------------------------------------------
@@ -276,10 +276,14 @@ main() {
 
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+    # Change shell to zsh"
+    chsh -s "$(which zsh)"
+
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
     if ! $skipQuestions; then
         ./restart.sh
     fi
-
 }
 
 main "$@"

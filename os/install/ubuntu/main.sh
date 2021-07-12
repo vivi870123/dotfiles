@@ -10,8 +10,10 @@ update
 upgrade
 
 
+./build-essentials.sh
 ./install_packages.sh
 
+./lazygit.sh
 ./n_install.sh
 ./rust.sh
 ./fzf.sh

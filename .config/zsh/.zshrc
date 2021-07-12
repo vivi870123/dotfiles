@@ -7,7 +7,7 @@ typeset -A __DOTS
 __DOTS[ITALIC_ON]=$'\e[3m'
 __DOTS[ITALIC_OFF]=$'\e[23m'
 
-PLUGIN_DIR=$DOTFILES/.config/zsh/plugins
+PLUGIN_DIR=$ZDOTDIR/zsh/plugins
 
 # Init completions
 autoload -Uz compinit
@@ -21,7 +21,7 @@ compinit
 # source $PLUGIN_DIR/zsh-autosuggestions/zsh-autosuggestions.zsh
 # source $PLUGIN_DIR/zsh-completions/zsh-completions.plugin.zsh
 # source $PLUGIN_DIR/alias-tips/alias-tips.plugin.zsh
-source $DOTFILES/.config/zsh/zplug.zsh
+source $ZDOTDIR/zplug.zsh
 
 autoload zmv # builtin zsh rename command
 
@@ -407,7 +407,7 @@ add-zsh-hook preexec () {
 #   LOCAL SCRIPTS
 #-------------------------------------------------------------------------------
 # source all zsh and sh files
-for script in $DOTFILES/zsh/scripts/*; do
+for script in $ZDOTDIR/scripts/*; do
   source $script
 done
 

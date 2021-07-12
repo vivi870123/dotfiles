@@ -35,9 +35,7 @@ main() {
 
     print_in_purple "\n • Create local config files\n\n"
 
-    create_bash_local
     create_gitconfig_local
-    create_vimrc_local
 
 }
 
