@@ -68,7 +68,6 @@ zstyle ':completion:*' matcher-list '' '+m:{[:lower:]}={[:upper:]}' '+m:{[:upper
 #-------------------------------------------------------------------------------
 setopt AUTO_CD
 setopt RM_STAR_WAIT
-setopt CORRECT # command auto-correction
 setopt COMPLETE_ALIASES
 
 # set some history options

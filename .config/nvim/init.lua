@@ -1,1 +1,1 @@
-echo msg "hello"
+require('core')

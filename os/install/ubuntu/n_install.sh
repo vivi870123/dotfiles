@@ -17,6 +17,10 @@ install_plugins() {
     if [ ! -f ~/n/bin/n ]; then
       curl $N_URL -L | bash -s -- -y
     fi
+
+    execute "n lts" "Installing node"
+    execute "npm install -g neovim" "Installing neovim"
+
 }
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

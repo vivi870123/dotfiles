@@ -17,7 +17,7 @@ alias \
 	mv="mv -iv" \
 	rm="rm -vI" \
 	del="trash" \
-	mkd="mkdir -pv" \
+	md="mkdir -pv" \
 	yt="youtube-dl --add-metadata -i" \
 	yta="yt -x -f bestaudio/best" \
 	ffmpeg="ffmpeg -hide_banner"\
@@ -36,7 +36,7 @@ alias \
 	dud='du -d 1 -h' \
 	duf='du -sh *' \
 	diff="diff --color=auto" \
-	cat="bat"
+	cat="batcat"
 
 
 alias o='a -e xdg-open' # quick opening files with xdg-open

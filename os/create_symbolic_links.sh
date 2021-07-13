@@ -138,6 +138,7 @@ create_config_symlinks() {
 	mpv/input.conf
 	mpv/mpv.conf
 	mpv/scripts
+	nvim
 	newsboat
 	rg
 	shell
