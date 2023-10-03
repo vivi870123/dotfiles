@@ -13,6 +13,7 @@ case $XDG_SESSION_TYPE in
   ;;
 
 "wayland")
+
   # Notifications
   dunst &
 

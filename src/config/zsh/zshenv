@@ -92,7 +92,6 @@ export SYNC_DIR="$HOME/Dropbox"
 export DOTFILES="$HOME/.dotfiles"
 export PROJECTS_DIR="$HOME/projects"
 export PERSONAL_PROJECTS_DIR="$PROJECTS_DIR/personal"
-
 export SSH_KEY_PATH="$HOME/.ssh/rsa_id"
 
 export N_PREFIX="$HOME/.local/share/n"

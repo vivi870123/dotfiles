@@ -21,4 +21,5 @@ wl-paste --watch clipman store &
 # Status bar
 killall someblocks
 # someblocks | "$HOME/.config/dwl/scripts/wl-set-status" &
-someblocks -m -1 &
+
+
