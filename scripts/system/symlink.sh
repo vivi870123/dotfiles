@@ -43,6 +43,7 @@ create_directories() {
     "$HOME/.ssh"
     "$HOME/.local/bin"
     "$HOME/.local/bin/statusbar"
+    "$HOME/.local/src"
     "$HOME/.local/share"
     "$HOME/.local/share/lyrics"
     "$HOME/.local/share/mpd"
@@ -116,8 +117,8 @@ local_bin_symlink() {
     "share/wallpapers"
     "share/fonts"
     "share/themes"
-    "share/mines/chars"
-    "share/mines/getkeys"
+    # "share/mines/chars"
+    # "share/mines/getkeys"
   )
 
   for i in "${LOCAL_FILES_TO_SYMLINK[@]}"; do

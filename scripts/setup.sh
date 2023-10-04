@@ -11,6 +11,7 @@ declare DOTFILES_UTILS_URL="https://raw.githubusercontent.com/$GITHUB_REPOSITORY
 #==================================
 # Settings
 #==================================
+declare REPO_DIR="$HOME/.local/src"
 declare DOTFILES_DIR="$HOME/.dotfiles"
 declare MINIMUM_ARTIX_VERSION="6.4.12"
 
@@ -90,7 +91,7 @@ verify_os() {
       print_error "Minimum Ubuntu $MINIMUM_UBUNTU_VERSION is required (current is $os_version)"
     fi
   # Check if the OS is `Artix` and supported
-  elif [ "$os_name" == "artix" ]; then
+  elif [ "$os_name" == "arch" ]; then
     print_success "$os_name $os_version is supported"
     return 0
   else

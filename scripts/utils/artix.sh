@@ -5,9 +5,49 @@
 #==================================
 cd "$(dirname "${BASH_SOURCE[0]}")" && . "utils.sh"
 
+manual_install() {
+	# Installs $1 manually. Used only for AUR helper here.
+	# Should be run after repodir is created and var is set.
+	sudo pacman -Qq "$1" && return 0
+	print_section "Installing \"$1\" manually."
+
+	create_directory "$REPO_DIR/$1"
+
+	git -C "$REPO_DIR" clone --depth 1 --single-branch --no-tags -q "https://aur.archlinux.org/$1.git" "$REPO_DIR/$1" ||
+		{
+			cd "$REPO_DIR/$1" || return 1
+			git pull --force origin main
+		}
+	cd "$REPO_DIR/$1" || exit 1
+	sudo makepkg --noconfirm -si >/dev/null 2>&1 || return 1
+}
+
+gitmakeinstall() {
+	progname="${1##*/}"
+	progname="${progname%.git}"
+	dir="$REPO_DIR/$progname"
+	print_title "Installing \`$progname\` via \`git\` and \`make\`. $(basename "$1") $2"
+
+	git -C "$REPO_DIR" clone --depth 1 --single-branch \
+		--no-tags -q "$1" "$dir" ||
+		{
+			cd "$dir" || return 1
+			git pull --force origin main
+		}
+	cd "$dir" || exit 1
+	make >/dev/null 2>&1
+	sudo make install >/dev/null 2>&1
+	cd /tmp || return 1
+}
+
 #==================================
 # PACMAN
 #==================================
+#
+refresh_keys() {
+	execute "sudo pacman --noconfirm -S archlinux-keyring" "refreshing keys"
+}
+
 pacman_install() {
 	declare -r EXTRA_ARGUMENTS="$3"
 	declare -r PACKAGE="$2"
