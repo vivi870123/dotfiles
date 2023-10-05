@@ -4,9 +4,13 @@
 #==================================
 # Source utilities
 #==================================
-. "$HOME/.dotfiles/scripts/utils/utils.sh"
+. "$DOTFILES_DIR/scripts/utils/utils.sh"
+
 os_name="$(get_os)"
 
+#==================================
+# Helpers
+#==================================
 create_symlink() {
   declare -r IS_HIDDEN="$3"
   declare -r DIRECTORY="$2"
@@ -57,14 +61,11 @@ create_directories() {
   )
 
   for i in "${DIRECTORIES[@]}"; do
-    mkd "$i"
+    execute "mkd $i" "create $i"
   done
 }
 
-touch "$HOME/.local/share/mpd/mpd.db"
-
 local_bin_symlink() {
-  print_title "local symlink"
   declare -a LOCAL_FILES_TO_SYMLINK=(
     "bin/bemenuhandler"
     "bin/bemenumountcifs"
@@ -131,8 +132,6 @@ local_bin_symlink() {
 }
 
 config_symlink() {
-  print_title ".config symlink"
-
   declare -a CONFIG_FILES_TO_SYMLINK=(
     "config/bat"
     "config/bemenu"
@@ -173,29 +172,38 @@ config_symlink() {
 }
 
 desktop_symlink() {
-  execute "rm -rf $HOME/.zshenv"
-  execute "rm -rf $HOME/.luarc.json"
-  execute "rm -rf $HOME/.gitignore"
-  execute "rm -rf $HOME/.stylua.toml"
-  execute "rm -rf $HOME/.ignore"
-  execute "rm -rf $HOME/.gitconfig"
-  execute "rm -rf $HOME/.gitconfig.local"
+  execute "rm -rf \
+	  $HOME/.zshenv \
+	  $HOME/.luarc.json \
+	  $HOME/.gitignore \
+	  $HOME/.stylua.toml \
+	  $HOME/.gitconfig \
+	  $HOME/.gitconfig.local" "Remove directories"
 
-  execute "ln -sf $HOME/.dotfiles/src/config/zsh/zshenv $HOME/.zshenv"
-  execute "ln -sf $HOME/.dotfiles/src/luarc.json $HOME/.luarc.json"
-  execute "ln -sf $HOME/.dotfiles/src/gitignore $HOME/.gitignore"
-  execute "ln -sf $HOME/.dotfiles/src/stylua.toml $HOME/.stylua.toml"
-  execute "ln -sf $HOME/.dotfiles/src/ignore $HOME/.ignore"
+  execute "ln -sf $DOTFILES_DIR/src/config/zsh/zshenv $HOME/.zshenv"
+  execute "ln -sf $DOTFILES_DIR/src/luarc.json $HOME/.luarc.json"
+  execute "ln -sf $DOTFILES_DIR/src/gitignore $HOME/.gitignore"
+  execute "ln -sf $DOTFILES_DIR/src/stylua.toml $HOME/.stylua.toml"
+  execute "ln -sf $DOTFILES_DIR/src/ignore $HOME/.ignore"
   execute "ln -sf $HOME/.config/dwl/scripts/startw $HOME/.local/bin"
   execute "ln -sf $HOME/.config/git/config $HOME/.gitconfig"
   execute "ln -sf $HOME/.config/git/config.local $HOME/.gitconfig.local"
 }
 
 #==================================
-# Print Section Title
+# Main
 #==================================
-print_section "Creating Symlinks"
+print_title 'Creating directories'
 create_directories
+
+print_title "local symlink"
 local_bin_symlink
+
+print_title "config symlink"
 config_symlink
+
+print_title "home directory symlink"
 desktop_symlink
+
+print_title "create mpd file"
+execute "touch $HOME/.local/share/mpd/mpd.db" "create mpd file"

@@ -4,9 +4,7 @@
 #==================================
 # Source utilities
 #==================================
-. "$HOME/.dotfiles/scripts/utils/utils.sh"
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+. "$DOTFILES_DIR/scripts/utils/utils.sh"
 
 main() {
   print_section "Restart"

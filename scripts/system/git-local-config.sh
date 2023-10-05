@@ -3,7 +3,7 @@
 #==================================
 # Source utilities
 #==================================
-. "$HOME/.dotfiles/scripts/utils/utils.sh"
+. "$DOTFILES_DIR/scripts/utils/utils.sh"
 
 create_gitconfig_local() {
   declare -r FILE_PATH="$HOME/.config/git/config.local"
@@ -26,6 +26,5 @@ create_gitconfig_local() {
   print_result $? "$FILE_PATH"
 }
 
-print_section "Git section"
-print_title "• Create local giconfig file"
+print_title "Create local giconfig file"
 create_gitconfig_local

@@ -13,7 +13,6 @@ declare DOTFILES_UTILS_URL="https://raw.githubusercontent.com/$GITHUB_REPOSITORY
 #==================================
 declare REPO_DIR="$HOME/.local/src"
 declare DOTFILES_DIR="$HOME/.dotfiles"
-declare MINIMUM_ARTIX_VERSION="6.4.12"
 
 declare skipQuestions=false
 
@@ -34,26 +33,6 @@ download() {
   return 1
 }
 
-download_dotfiles() {
-  local tmpFile=""
-
-  print_title "Download and extract archive"
-  tmpFile="$(mktemp /tmp/XXXXX)"
-
-  download "$DOTFILES_TARBALL_URL" "$tmpFile"
-  print_result $? "Download archive" "true"
-
-  mkdir -p "$DOTFILES_DIR"
-  print_result $? "Create '$DOTFILES_DIR'" "true"
-
-  # Extract archive in the `dotfiles` directory.
-  extract "$tmpFile" "$DOTFILES_DIR"
-  print_result $? "Extract archive" "true"
-
-  rm -rf "$tmpFile"
-  print_result $? "Remove archive"
-}
-
 download_utils() {
   local tmpFile=""
 
@@ -62,18 +41,6 @@ download_utils() {
     . "$tmpFile" &&
     rm -rf "$tmpFile" &&
     return 0
-
-  return 1
-}
-
-extract() {
-  local archive="$1"
-  local outputDir="$2"
-
-  if command -v "tar" &>/dev/null; then
-    tar -zxf "$archive" --strip-components 1 -C "$outputDir"
-    return $?
-  fi
 
   return 1
 }
@@ -111,8 +78,6 @@ main() {
   # Load utils
   if [ -x "utils/utils.sh" ]; then
     . "utils/utils.sh" || exit 1
-  else
-    download_utils || exit 1
   fi
 
   print_section "Dotfiles Setup"
@@ -125,14 +90,8 @@ main() {
   print_title "Verifying OS"
   verify_os || exit 1
 
-  # Check if this script was run directly (./<path>/setup.sh),
-  # and if not, it most likely means that the dotfiles were not
-  # yet set up, and they will need to be downloaded.
-  # printf "%s" "${BASH_SOURCE[0]}" | grep "setup.sh" &> /dev/null \ || download_dotfiles
-
   # Start installation
-  . "$HOME/.dotfiles/scripts/system/$(get_os)/install.sh"
-
+  . "$DOTFILES_DIR/scripts/system/$(get_os)/install.sh"
 }
 
 main "$@"

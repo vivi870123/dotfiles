@@ -3,7 +3,7 @@
 #==================================
 # Source utilities
 #==================================
-. "$HOME/.dotfiles/scripts/utils/utils.sh"
+. "$DOTFILES_DIR/scripts/utils/utils.sh"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -12,16 +12,12 @@ initialize_git_repository() {
 
   if [ -z "$GIT_ORIGIN" ]; then
     print_error "Please provide a URL for the Git origin"
-
     exit 1
   fi
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   if ! is_git_repository; then
     # Run the following Git commands in the root of
     # the dotfiles directory, not in the `os/` directory.
-
     cd ../../ || print_error "Failed to 'cd ../../'"
 
     execute \
