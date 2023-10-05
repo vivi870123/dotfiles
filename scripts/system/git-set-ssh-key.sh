@@ -3,23 +3,23 @@
 #==================================
 # Source utilities
 #==================================
-. "$DOTFILES_DIR/scripts/utils/utils.sh"
+. "$HOME/.dotfiles/scripts/utils/utils.sh"
 
 add_ssh_configs() {
   printf "%s\n" \
     "Host github.com" \
     "  IdentityFile $1" \
-    "  LogLevel ERROR" >>$HOME/.ssh/config
+    "  LogLevel ERROR" >>~/.ssh/config
 
   print_result $? "Add SSH configs"
 }
 
 copy_public_ssh_key_to_clipboard() {
-  if cmd_exists "xclip"; then
-    xclip -selection clip <"$1"
-    print_result $? "Copy public SSH key to clipboard"
-  elif cmd_exists "wl-copy"; then
+  if cmd_exists "wl-copy"; then
     wl-copy $1
+    print_result $? "Copy public SSH key to clipboard"
+  elseif cmd_exists "xclip"; then
+    xclip -selection clip <"$1"
     print_result $? "Copy public SSH key to clipboard"
   else
     print_warning "Please copy the public SSH key ($1) to clipboard"
@@ -29,6 +29,7 @@ copy_public_ssh_key_to_clipboard() {
 generate_ssh_keys() {
   ask "Please provide an email address: " && printf "\n"
   ssh-keygen -t ed25519 -C "$(get_answer)" -f "$1"
+
   print_result $? "Generate SSH keys"
 }
 
@@ -45,11 +46,16 @@ open_github_ssh_page() {
 set_github_ssh_key() {
   local sshKeyFileName="$HOME/.ssh/github"
 
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   # If there is already a file with that
   # name, generate another, unique, file name.
+
   if [ -f "$sshKeyFileName" ]; then
     sshKeyFileName="$(mktemp -u "$HOME/.ssh/github_XXXXX")"
   fi
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   generate_ssh_keys "$sshKeyFileName"
   add_ssh_configs "$sshKeyFileName"
@@ -62,8 +68,10 @@ test_ssh_connection() {
   while true; do
     chmod 600 ~/.ssh/config
     chown $USER ~/.ssh/config
+
     ssh -T git@github.com
     [ $? -eq 1 ] && break
+
     sleep 5
   done
 }
@@ -71,10 +79,16 @@ test_ssh_connection() {
 main() {
   print_title "Set up GitHub SSH keys"
 
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   ssh -T git@github.com &>/dev/null
+
   if [ $? -ne 1 ]; then
     set_github_ssh_key
   fi
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   print_result $? "Set up GitHub SSH keys"
 }
 

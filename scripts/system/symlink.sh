@@ -4,7 +4,7 @@
 #==================================
 # Source utilities
 #==================================
-. "$DOTFILES_DIR/scripts/utils/utils.sh"
+. "$HOME/.dotfiles/scripts/utils/utils.sh"
 
 os_name="$(get_os)"
 
@@ -180,11 +180,11 @@ desktop_symlink() {
 	  $HOME/.gitconfig \
 	  $HOME/.gitconfig.local" "Remove directories"
 
-  execute "ln -sf $DOTFILES_DIR/src/config/zsh/zshenv $HOME/.zshenv"
-  execute "ln -sf $DOTFILES_DIR/src/luarc.json $HOME/.luarc.json"
-  execute "ln -sf $DOTFILES_DIR/src/gitignore $HOME/.gitignore"
-  execute "ln -sf $DOTFILES_DIR/src/stylua.toml $HOME/.stylua.toml"
-  execute "ln -sf $DOTFILES_DIR/src/ignore $HOME/.ignore"
+  execute "ln -sf $HOME/.dotfiles/src/config/zsh/zshenv $HOME/.zshenv"
+  execute "ln -sf $HOME/.dotfiles/src/luarc.json $HOME/.luarc.json"
+  execute "ln -sf $HOME/.dotfiles/src/gitignore $HOME/.gitignore"
+  execute "ln -sf $HOME/.dotfiles/src/stylua.toml $HOME/.stylua.toml"
+  execute "ln -sf $HOME/.dotfiles/src/ignore $HOME/.ignore"
   execute "ln -sf $HOME/.config/dwl/scripts/startw $HOME/.local/bin"
   execute "ln -sf $HOME/.config/git/config $HOME/.gitconfig"
   execute "ln -sf $HOME/.config/git/config.local $HOME/.gitconfig.local"

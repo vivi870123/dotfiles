@@ -3,7 +3,7 @@
 #==================================
 # Source utilities
 #==================================
-. "$DOTFILES_DIR/scripts/utils/utils.sh"
+. "$HOME/.dotfiles/scripts/utils/utils.sh"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 

@@ -149,7 +149,7 @@ repo_has_remote_url() {
 #   $1 the file source relative to the dotfiles directory
 #   $2 the file destination relative to the $HOME directory
 symlink() {
-  local src="$DOTFILES_DIR/$1"
+  local src="$HOME/.dotfiles/$1"
   local dst="$HOME/$2"
   execute "_symlink '$src' '$dst'" "$1 → ~/$2"
 }
@@ -189,7 +189,7 @@ symlink_bin() {
 #   $2 the name of the plugin in the ~/.config directory.
 symlink_config() {
   local name=${2:-$1}
-  execute "ln -fs $DOTFILES_DIR/src/config/$1 $HOME/.config"
+  execute "ln -fs $HOME/.dotfiles/src/config/$1 $HOME/.config"
 }
 
 # Symlink local/share file or dir.

@@ -4,8 +4,8 @@
 #==================================
 # Source utilities
 #==================================
-. "$DOTFILES_DIR/scripts/utils/utils.sh"
-. "$DOTFILES_DIR/scripts/utils/arch.sh"
+. "$HOME/.dotfiles/scripts/utils/utils.sh"
+. "$HOME/.dotfiles/scripts/utils/arch.sh"
 
 #==================================
 # Helpers
@@ -104,6 +104,8 @@ install_pacman_packages() {
   pacman_install "sheldon" "sheldon: A fast and configurable shell pluggin manager"
   pacman_install "git-delta" "git-delta: Syntax highlighting pager for git and diff output"
   pacman_install "bob" "bob: A fast and configurable shell pluggin manager"
+  pacman_install "xdg-utils" "xdg-utils - command line tools that assist application with a variety of desktop integration tasks"
+  pacman_install "xdg-user-dirs" "xdg-user-dirs - manage user directories"
 }
 
 install_aur_packages() {

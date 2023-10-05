@@ -91,7 +91,7 @@ main() {
   verify_os || exit 1
 
   # Start installation
-  . "$DOTFILES_DIR/scripts/system/$(get_os)/install.sh"
+  . "$HOME/.dotfiles/scripts/system/$(get_os)/install.sh"
 }
 
 main "$@"
