@@ -4,7 +4,6 @@
 [user]
   name = "James Rogers-Wright"
   email = "vivi870123@gmail.com"
-  signingkey = 388FB07B3D542289
 
 [include]
   path = ~/.gitconfig.local
@@ -148,5 +147,12 @@
 
 [url "git://gist.github.com/"]
   insteadOf = "gist:"
-[credential]
-  helper = /usr/lib/git-core/git-credential-libsecret
+
+# [credential]
+  # helper = /usr/lib/git-core/git-credential-libsecret
+[credential "https://github.com"]
+	helper = 
+	helper = !/usr/bin/gh auth git-credential
+[credential "https://gist.github.com"]
+	helper = 
+	helper = !/usr/bin/gh auth git-credential

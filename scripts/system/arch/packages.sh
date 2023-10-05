@@ -102,6 +102,7 @@ print_title "Installing main packages"
 # pacman_install "slurp" "slurp"                                # Select a region in a Wayland compositor
 # pacman_install "light" "light"                                # Program to easily change brightness on backlight-controllers.
 # pacman_install "github-cli" "github-cli"                      # Github cli
+# pacman_install "tllist" "tllist"                      	# A typed linked c header file (for dwlb )
 # aur_install "lf-git" "lf-git"                                 # is an extensive terminal file manager that everyone likes.
 # aur_install "librewolf-bin" "librewolf-bin"                   # is the default browser of LARBS which also comes with ad-blocking and other sensible and necessary features by default.
 # aur_install "arkenfox-user.js" "arkenfox-user.js"             # provides hardened security settings for Firefox and Librewolf to avoid Mozilla spyware and general web fingerprinting.
@@ -136,6 +137,9 @@ print_title "Installing main packages"
 
 print_title "Rust Development"
 gitmakeinstall "https://github.com/vivi870123/dwl.git"
+gitmakeinstall "https://github.com/vivi870123/dwlb.git"
+gitmakeinstall "https://github.com/vivi870123/somebar.git"
+gitmakeinstall "https://github.com/vivi870123/someblocks.git"
 
 
 # print_title "Rust Development"

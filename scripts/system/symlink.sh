@@ -46,7 +46,9 @@ create_directories() {
     "$HOME/.local/src"
     "$HOME/.local/share"
     "$HOME/.local/share/lyrics"
+    "$HOME/.cache/mpd"
     "$HOME/.local/share/mpd"
+    "$HOME/.local/share/mines"
     "$HOME/.cache/zsh"
     "$HOME/projects"
     "$HOME/projects/laravel"
@@ -58,6 +60,8 @@ create_directories() {
     mkd "$i"
   done
 }
+
+touch "$HOME/.local/share/mpd/mpd.db"
 
 local_bin_symlink() {
   print_title "local symlink"
@@ -117,8 +121,8 @@ local_bin_symlink() {
     "share/wallpapers"
     "share/fonts"
     "share/themes"
-    # "share/mines/chars"
-    # "share/mines/getkeys"
+    "share/mines/chars"
+    "share/mines/getkeys"
   )
 
   for i in "${LOCAL_FILES_TO_SYMLINK[@]}"; do
@@ -177,11 +181,11 @@ desktop_symlink() {
   execute "rm -rf $HOME/.gitconfig"
   execute "rm -rf $HOME/.gitconfig.local"
 
-  execute "ln -sf $DOTFILES/src/config/zsh/zshenv $HOME/.zshenv"
-  execute "ln -sf $DOTFILES/src/luarc.json $HOME/.luarc.json"
-  execute "ln -sf $DOTFILES/src/gitignore $HOME/.gitignore"
-  execute "ln -sf $DOTFILES/src/stylua.toml $HOME/.stylua.toml"
-  execute "ln -sf $DOTFILES/src/ignore $HOME/.ignore"
+  execute "ln -sf $HOME/.dotfiles/src/config/zsh/zshenv $HOME/.zshenv"
+  execute "ln -sf $HOME/.dotfiles/src/luarc.json $HOME/.luarc.json"
+  execute "ln -sf $HOME/.dotfiles/src/gitignore $HOME/.gitignore"
+  execute "ln -sf $HOME/.dotfiles/src/stylua.toml $HOME/.stylua.toml"
+  execute "ln -sf $HOME/.dotfiles/src/ignore $HOME/.ignore"
   execute "ln -sf $HOME/.config/dwl/scripts/startw $HOME/.local/bin"
   execute "ln -sf $HOME/.config/git/config $HOME/.gitconfig"
   execute "ln -sf $HOME/.config/git/config.local $HOME/.gitconfig.local"
