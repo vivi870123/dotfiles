@@ -1,39 +1,21 @@
-local api, fn, diagnostic = vim.api, vim.fn, vim.diagnostic
-local border = mines.ui.current.border
+local fn, api, diagnostic = vim.fn, vim.api, vim.diagnostic
 
 local function neotest() return require 'neotest' end
+local function open() neotest().output.open { enter = true, short = false } end
+local function run_file() neotest().run.run(fn.expand '%') end
+local function run_file_sync() neotest().run.run { fn.expand '%', concurrent = false } end
+local function nearest() neotest().run.run() end
+local function next_failed() neotest().jump.prev { status = 'failed' } end
+local function prev_failed() neotest().jump.next { status = 'failed' } end
+local function toggle_summary() neotest().summary.toggle() end
+local function cancel() neotest().run.stop { interactive = true } end
 
 return {
-  { 'vim-test/vim-test' },
-  {
+  { -- vim-test
+    'vim-test/vim-test',
+  },
+  { -- neotest
     'nvim-neotest/neotest',
-    ft = { 'php', 'javascript', 'typescript', 'javascriptreact', 'typescriptreact', 'lua' },
-    keys = {
-      { '<localleader>ts', function() neotest().summary.toggle() end, desc = 'neotest: toggle summary' },
-      {
-        '<localleader>to',
-        function() neotest().output.open { enter = true, short = false } end,
-        desc = 'neotest: output',
-      },
-      { '<localleader>tn', function() neotest().run.run() end, desc = 'neotest: run' },
-      { '<localleader>tf', function() neotest().run.run(fn.expand '%') end, desc = 'neotest: run file' },
-      {
-        '<localleader>tF',
-        function() neotest().run.run { fn.expand '%', concurrent = false } end,
-        desc = 'neotest: run file synchronously',
-      },
-      {
-        '<localleader>tc',
-        function() neotest().run.stop { interactive = true } end,
-        desc = 'neotest: cancel',
-      },
-      { '[n', function() neotest().jump.prev { status = 'failed' } end, desc = 'jump to next failed test' },
-      {
-        ']n',
-        function() neotest().jump.next { status = 'failed' } end,
-        desc = 'jump to previous failed test',
-      },
-    },
     dependencies = {
       { 'nvim-neotest/neotest-vim-test' },
       { 'haydenmeade/neotest-jest' },
@@ -41,6 +23,24 @@ return {
       { 'rcarriga/neotest-plenary', dependencies = { 'nvim-lua/plenary.nvim' } },
       { 'marilari88/neotest-vitest' },
       { 'thenbe/neotest-playwright' },
+    },
+    keys = {
+      { '<localleader>ts', toggle_summary, desc = 'neotest: toggle summary' },
+      { '<localleader>to', open, desc = 'neotest: output' },
+      { '<localleader>tn', nearest, desc = 'neotest: run' },
+      { '<localleader>tf', run_file, desc = 'neotest: run file' },
+      { '<localleader>tF', run_file_sync, desc = 'neotest: run file synchronously' },
+      { '<localleader>tc', cancel, desc = 'neotest: cancel' },
+      { '[n', next_failed, desc = 'jump to next failed test' },
+      { ']n', prev_failed, desc = 'jump to previous failed test' },
+    },
+    ft = {
+      'php',
+      'javascript',
+      'typescript',
+      'javascriptreact',
+      'typescriptreact',
+      'lua',
     },
     config = function()
       local namespace = api.nvim_create_namespace 'neotest'
@@ -66,21 +66,13 @@ return {
         },
       }
 
-      -- local composer_ok, composer = pcall(require, 'composer')
-      -- if composer_ok and composer.query { 'require', 'laravel/sail' } ~= nil then
-      --   table.insert(adapters, [[ require 'laravel.neotest']])
-      -- else
-      --   return
-      -- end
-
       require('neotest').setup {
         discovery = { enabled = true },
         diagnostic = { enabled = true },
         quickfix = { enabled = false, open = true },
-        floating = { border = border },
+        floating = { border = mines.ui.border },
         adapters = adapters,
       }
     end,
   },
 }
-

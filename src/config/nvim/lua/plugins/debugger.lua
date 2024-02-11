@@ -1,32 +1,88 @@
 local fn = vim.fn
-local ui = mines.ui
-local icon, border = ui.icons, ui.current.border
+local icons, highlight, palette = mines.ui.icons, mines.highlight, mines.ui.palette
 
 return {
-  {
+  { -- nvim-dap
     'mfussenegger/nvim-dap',
-    init = function() end,
-    -- stylua: ignore
     keys = {
-      {'<localleader>dL', function() require('dap').set_breakpoint(nil, nil, fn.input 'Log point message: ') end, desc = 'dap: log breakpoint',},
-      {'<localleader>db', function() require('dap').toggle_breakpoint() end, desc = 'dap: toggle breakpoint',},
-      {'<localleader>dB', function() require('dap').set_breakpoint(fn.input 'Breakpoint condition: ') end, desc = 'dap: set conditional breakpoint',},
-      {'<localleader>dc', function() require('dap').continue() end, desc = 'dap: continue or start debugging',},
-      {'<localleader>de', function() require('dap').step_out() end, desc = 'dap: step out',},
-      {'<localleader>di', function() require('dap').step_into() end, desc = 'dap: step into',},
-      { '<localleader>do', function() require('dap').step_over() end, desc = 'dap: step over' },
+      {
+        '<localleader>dL',
+        function() require('dap').set_breakpoint(nil, nil, fn.input 'Log point message: ') end,
+        desc = 'dap: log breakpoint',
+      },
+      { '<localleader>db', '<cmd>DapToggleBreakpoint<cr>', desc = 'dap: toggle breakpoint' },
+      {
+        '<localleader>dB',
+        function() require('dap').set_breakpoint(fn.input 'Breakpoint condition: ') end,
+        desc = 'dap: set conditional breakpoint',
+      },
+      { '<localleader>dc', '<cmd>DapContinue<cr>', desc = 'dap: continue or start debugging' },
+      { '<localleader>duc', function() require('dapui').close() end, desc = 'dap ui: close' },
+      { '<localleader>dut', function() require('dapui').toggle() end, desc = 'dap ui: toggle' },
+      { '<localleader>dt', '<cmd>DapToggleRepl<cr>', desc = 'dap: toggle repl' },
+      { '<localleader>de', '<cmd>DapStepOut<cr>', desc = 'dap: step out' },
+      { '<localleader>di', '<cmd>DapStepInto<cr>', desc = 'dap: step into' },
+      { '<localleader>do', '<cmd>DapStepOver<cr>', desc = 'dap: step over' },
       { '<localleader>dl', function() require('dap').run_last() end, desc = 'dap REPL: run last' },
+    },
+    dependencies = {
+      { -- vscode-js-debug
+        'microsoft/vscode-js-debug',
+        build = 'npm install --legacy-peer-deps && npx gulp vsDebugServerBundle && mv dist out',
+      },
+      { -- nvim-dap-ui
+        'rcarriga/nvim-dap-ui',
+        opts = {
+          windows = { indent = 2 },
+          floating = { border = mines.ui.current.border },
+          layouts = {
+            {
+              elements = {
+                { id = 'scopes', size = 0.25 },
+                { id = 'breakpoints', size = 0.25 },
+                { id = 'stacks', size = 0.25 },
+                { id = 'watches', size = 0.25 },
+              },
+              position = 'left',
+              size = 20,
+            },
+            {
+              elements = {
+                { id = 'repl', size = 0.9 },
+              },
+              position = 'bottom',
+              size = 10,
+            },
+          },
+        },
+      },
+      { -- nvim-dap-virtual-text
+        'theHamsta/nvim-dap-virtual-text',
+        opts = { all_frames = true },
+      },
     },
     config = function()
       local dap = require 'dap' -- Dap must be loaded before the signs can be tweaked
+      local ui_ok, dapui = pcall(require, 'dapui')
 
-      vim.fn.sign_define {
-        { name = 'DapBreakpoint', text = icon.bug, texthl = 'DapBreakpoint', linehl = '', numhl = '' },
-        { name = 'DapStopped', text = icon.bookmark, texthl = 'DapStopped', linehl = '', numhl = '' },
+      highlight.plugin('dap', {
+        { DapBreakpoint = { fg = palette.light_red } },
+        { DapStopped = { fg = palette.green } },
+      })
+
+      fn.sign_define {
+        { name = 'DapBreakpoint', text = icons.bug, texthl = 'DapBreakpoint', linehl = '', numhl = '' },
+        { name = 'DapStopped', text = icons.bookmark, texthl = 'DapStopped', linehl = '', numhl = '' },
       }
 
       -- DON'T automatically stop at exceptions
       -- dap.defaults.fallback.exception_breakpoints = {}
+
+      if not ui_ok then return end
+      dap.listeners.before.event_exited['dapui_config'] = function() dapui.close() end
+      dap.listeners.before.event_terminated['dapui_config'] = function() dapui.close() end
+      dap.listeners.after.event_initialized['dapui_config'] = function() dapui.open() end
+
       dap.adapters.php = { type = 'executable', command = 'php-debug-adapter' }
       dap.configurations.php = {
         {
@@ -44,11 +100,19 @@ return {
           pathMappings = { ['/app'] = '${workspaceFolder}' },
         },
       }
-
-      require('dap-vscode-js').setup {
-        debugger_cmd = { 'js-debug-adapter' },
-        adapters = { 'pwa-node', 'pwa-chrome', 'node-terminal' },
-      }
+    end,
+  },
+  { -- nvim-dap-vscode-js
+    'mxsdev/nvim-dap-vscode-js',
+    ft = { 'javascript', 'javascriptreact', 'typescript', 'typescriptreact' },
+    dependencies = { 'mfussenegger/nvim-dap' },
+    opts = {
+      adapters = { 'chrome', 'pwa-node', 'pwa-chrome', 'node-terminal', 'pwa-extensionHost' },
+      node_path = 'node',
+      debugger_cmd = { 'js-debug-adapter' },
+    },
+    config = function(_, opts)
+      require('dap-vscode-js').setup(opts)
 
       for _, language in ipairs { 'typescript', 'javascript' } do
         require('dap').configurations[language] = {
@@ -91,97 +155,5 @@ return {
         }
       end
     end,
-    dependencies = {
-      {
-        'microsoft/vscode-js-debug',
-        build = 'npm install --legacy-peer-deps && npx gulp vsDebugServerBundle && mv dist out',
-      }, -- vscode-js-debug
-      {
-        'mxsdev/nvim-dap-vscode-js',
-        ft = { 'javascript', 'javascriptreact', 'typescript', 'typescriptreact' },
-        dependencies = { 'mfussenegger/nvim-dap' },
-        opts = {
-          adapters = { 'chrome', 'pwa-node', 'pwa-chrome', 'node-terminal', 'pwa-extensionHost' },
-          node_path = 'node',
-          debugger_cmd = { 'js-debug-adapter' },
-        },
-      }, -- nvim-dap-vscode-js
-      {
-        'rcarriga/nvim-dap-ui',
-        keys = {
-          {
-            '<localleader>duc',
-            function() require('dapui').close(mines.debug.layout.ft[vim.bo.ft]) end,
-            desc = 'dap ui: close',
-          },
-          {
-            '<localleader>dut',
-            function() require('dapui').toggle(mines.debug.layout.ft[vim.bo.ft]) end,
-            desc = 'dap ui: toggle',
-          },
-        },
-        config = function()
-          require('dapui').setup {
-            windows = { indent = 2 },
-            floating = { border = border },
-            icons = { expanded = '▾', collapsed = '▸' },
-            layouts = {
-              {
-                elements = {
-                  { id = 'scopes', size = 0.25 },
-                  { id = 'breakpoints', size = 0.25 },
-                  { id = 'stacks', size = 0.25 },
-                  { id = 'watches', size = 0.25 },
-                },
-                position = 'left',
-                size = 20,
-              },
-              {
-                elements = { 'repl', 'console' },
-                size = 10,
-                position = 'bottom',
-              },
-            },
-          }
-
-          local dap = require 'dap'
-
-          dap.listeners.after.event_initialized['dapui_config'] = function()
-            require('dapui').open()
-            vim.api.nvim_exec_autocmds('User', { pattern = 'DapStarted' })
-          end
-
-          dap.listeners.before.event_terminated['dapui_config'] = function() require('dapui').close() end
-          dap.listeners.before.event_exited['dapui_config'] = function() require('dapui').close() end
-        end,
-      }, -- nvim-dap-ui
-      {
-        'theHamsta/nvim-dap-virtual-text',
-        opts = { all_frames = true },
-      }, -- nvim-dap-virtual-text
-    },
-  }, -- nvim-dap
-  {
-    'andrewferrier/debugprint.nvim',
-    event = 'VeryLazy',
-    opts = { create_keymaps = false },
-    keys = {
-      {
-        '<leader>dp',
-        function() return require('debugprint').debugprint { variable = true } end,
-        { desc = 'debugprint: cursor', expr = true },
-      },
-      {
-        '<leader>do',
-        function() return require('debugprint').debugprint { motion = true } end,
-        { desc = 'debugprint: operator', expr = true },
-      },
-      {
-        '<leader>C',
-        '<Cmd>DelteDebugPrints<CR>',
-        { desc = 'debugprint: clear all' },
-      },
-    },
-  }, -- debugprint.nvim
+  },
 }
-

@@ -1,75 +1,11 @@
-local api, fmt = vim.api, string.format
-local l, uv = vim.log.levels, vim.loop
-local g, fn, opt, loop, env, cmd = vim.g, vim.fn, vim.opt, vim.loop, vim.env, vim.cmd
+local fn, api, cmd, fmt, uv = vim.fn, vim.api, vim.cmd, string.format, vim.loop
+local l = vim.log.levels
 
 ----------------------------------------------------------------------------------------------------
 -- Utils
 ----------------------------------------------------------------------------------------------------
 
---- Convert a list or map of items into a value by iterating all it's fields and transforming
---- them with a callback
----@generic T : table
----@param callback fun(T, T, key: string | number): T
----@param list T[]
----@param accum T?
----@return T
-function mines.fold(callback, list, accum)
-  accum = accum or {}
-  for k, v in pairs(list) do
-    accum = callback(accum, v, k)
-    assert(accum ~= nil, 'The accumulator must be returned on each iteration')
-  end
-  return accum
-end
-
----@generic T : table
----@param callback fun(item: T, key: string | number, list: T[]): T
----@param list T[]
----@return T[]
-function mines.map(callback, list)
-  return mines.fold(function(accum, v, k)
-    accum[#accum + 1] = callback(v, k, accum)
-    return accum
-  end, list, {})
-end
-
----@generic T : table
----@param callback fun(T, key: string | number)
----@param list T[]
-function mines.foreach(callback, list)
-  for k, v in pairs(list) do
-    callback(v, k)
-  end
-end
-
---- Check if the target matches  any item in the list.
----@param target string
----@param list string[]
----@return boolean
-function mines.any(target, list)
-  for _, item in ipairs(list) do
-    if target:match(item) then return true end
-  end
-  return false
-end
-
----Find an item in a list
----@generic T
----@param matcher fun(arg: T):boolean
----@param haystack T[]
----@return T
-function mines.find(matcher, haystack)
-  local found
-  for _, needle in ipairs(haystack) do
-    if matcher(needle) then
-      found = needle
-      break
-    end
-  end
-  return found
-end
-
---- Autosize quickfix to match its minimum content
+--- Autosize horizontal split to match its minimum content
 --- https://vim.fandom.com/wiki/Automatically_fitting_a_quickfix_window_height
 ---@param min_height number
 ---@param max_height number
@@ -80,6 +16,7 @@ end
 ---------------------------------------------------------------------------------
 -- Quickfix and Location List
 ---------------------------------------------------------------------------------
+
 mines.list = { qf = {}, loc = {} }
 
 ---@param list_type "loclist" | "quickfix"
@@ -94,7 +31,7 @@ local silence = { mods = { silent = true, emsg_silent = true } }
 local function preserve_window(callback, ...)
   local win = api.nvim_get_current_win()
   callback(...)
-  if win ~= api.nvim_get_current_win() then cmd.wincmd 'J' end
+  if win ~= api.nvim_get_current_win() then cmd.wincmd 'p' end
 end
 
 function mines.list.qf.toggle()
@@ -131,7 +68,6 @@ function mines.list.qf.delete(buf)
   fn.setqflist({}, 'r', { items = list })
   fn.setpos('.', { buf, line, 1, 0 }) -- restore current line
 end
-
 ---------------------------------------------------------------------------------
 
 ---@param str string
@@ -155,20 +91,6 @@ function mines.falsy(item)
   return item ~= nil
 end
 
----Require a module using `pcall` and report any errors
----@param module string
----@param opts {silent: boolean, message: string}?
----@return boolean, any
-function mines.require(module, opts)
-  opts = opts or { silent = false }
-  local ok, result = pcall(require, module)
-  if not ok and not opts.silent then
-    if opts.message then result = opts.message .. '\n' .. result end
-    vim.notify(result, l.ERROR, { title = fmt('Error requiring: %s', module) })
-  end
-  return ok, result
-end
-
 --- Call the given function and use `vim.notify` to notify of any errors
 --- this function is a wrapper around `xpcall` which allows having a single
 --- error handler for all errors
@@ -180,7 +102,7 @@ end
 function mines.pcall(msg, func, ...)
   local args = { ... }
   if type(msg) == 'function' then
-    local arg = func --[[@mines any]]
+    local arg = func --[[@as any]]
     args, func, msg = { arg, unpack(args) }, msg, nil
   end
   return xpcall(func, function(err)
@@ -189,12 +111,13 @@ function mines.pcall(msg, func, ...)
   end, unpack(args))
 end
 
-local LATEST_NIGHTLY_MINOR = 9
+local LATEST_NIGHTLY_MINOR = 10
 function mines.nightly() return vim.version().minor >= LATEST_NIGHTLY_MINOR end
 
 ----------------------------------------------------------------------------------------------------
 --  FILETYPE HELPERS
 ----------------------------------------------------------------------------------------------------
+
 ---@class FiletypeSettings
 ---@field g table<string, any>
 ---@field bo vim.bo
@@ -205,9 +128,9 @@ function mines.nightly() return vim.version().minor >= LATEST_NIGHTLY_MINOR end
 ---@param args {[1]: string, [2]: string, [3]: string, [string]: boolean | integer}[]
 ---@param buf integer
 local function apply_ft_mappings(args, buf)
-  vim.iter(ipairs(args)):each(function(_, m)
-    assert(m[1] and m[2] and m[3], 'map args must be a table with at least 3 items')
-    local opts = vim.iter(pairs(m)):fold({ buffer = buf }, function(acc, item, key)
+  vim.iter(args):each(function(m)
+    assert(#m == 3, 'map args must be a table with at least 3 items')
+    local opts = vim.iter(m):fold({ buffer = buf }, function(acc, key, item)
       if type(key) == 'string' then acc[key] = item end
       return acc
     end)
@@ -241,9 +164,6 @@ end
 ---    }
 ---   })
 --- ```
---- One future idea is to generate the ftplugin files from this function, so the settings are still
---- centralized but the curation of these files is automated. Although I'm not sure this actually
---- has value over autocommands, unless ftplugin files specifically have that value
 ---
 ---@param map {[string|string[]]: FiletypeSettings | {[integer]: fun(args: AutocmdArgs)}}
 function mines.filetype_settings(map)
@@ -254,123 +174,17 @@ function mines.filetype_settings(map)
       event = 'FileType',
       desc = ('ft settings for %s'):format(name),
       command = function(args)
-        vim.iter(settings):each(function(value, scope)
-          if scope == 'opt' then scope = 'opt_local' end
-          if scope == 'mappings' then return apply_ft_mappings(value, args.buf) end
-          if scope == 'plugins' then return mines.ftplugin_conf(value) end
-          local v = type(value)
-          if v == 'function' then return value(args) end
-          if v == 'table' then vim.iter(value):each(function(setting, option) vim[scope][option] = setting end) end
+        vim.iter(settings):each(function(key, value)
+          if key == 'opt' then key = 'opt_local' end
+          if key == 'mappings' then return apply_ft_mappings(value, args.buf) end
+          if key == 'plugins' then return mines.ftplugin_conf(value) end
+          if type(key) == 'function' then return mines.pcall(key, args) end
+          vim.iter(value):each(function(option, setting) vim[key][option] = setting end)
         end)
       end,
     }
   end)
   mines.augroup('filetype-settings', unpack(commands:totable()))
-end
-
----Check if a cmd is executable
----@param e string
----@return boolean
-function mines.executable(e) return fn.executable(e) > 0 end
-
-----------------------------------------------------------------------------------------------------
--- File helpers
-----------------------------------------------------------------------------------------------------
-function mines.normalize(path)
-  vim.validate { path = { path, 'string' } }
-  assert(path ~= '', debug.traceback 'Empty path')
-  if path == '%' then
-    -- TODO: Replace this with a fast API
-    return vim.fn.expand(path)
-  end
-  return (path:gsub('^~', vim.loop.os_homedir()):gsub('%$([%w_]+)', vim.loop.os_getenv):gsub('\\', '/'))
-end
-function mines.exists(filename)
-  vim.validate { filename = { filename, 'string' } }
-  if filename == '' then return false end
-  local stat = uv.fs_stat(mines.normalize(filename))
-  return stat and stat.type or false
-end
-
-function mines.is_dir(filename) return mines.exists(filename) == 'directory' end
-
-function mines.is_file(filename) return mines.exists(filename) == 'file' end
-
-function mines.executable(exec)
-  vim.validate { exec = { exec, 'string' } }
-  assert(exec ~= '', debug.traceback 'Empty executable string')
-  return vim.fn.executable(exec) == 1
-end
-
-function mines.exepath(exec)
-  vim.validate { exec = { exec, 'string' } }
-  assert(exec ~= '', debug.traceback 'Empty executable string')
-  local path = vim.fn.exepath(exec)
-  return path ~= '' and path or false
-end
-
-function mines.is_absolute(path)
-  vim.validate { path = { path, 'string' } }
-  assert(path ~= '', debug.traceback 'Empty path')
-  if path:sub(1, 1) == '~' then path = path:gsub('~', uv.os_homedir()) end
-
-  return path:sub(1, 1) == '/'
-end
-
-function mines.is_root(path)
-  vim.validate { path = { path, 'string' } }
-  assert(path ~= '', debug.traceback 'Empty path')
-  return path == '/'
-end
-
-function mines.realpath(path)
-  vim.validate { path = { path, 'string' } }
-  assert(mines.exists(path), debug.traceback(([[Path "%s" doesn't exists]]):format(path)))
-  return uv.fs_realpath(mines.normalize(path)):gsub('\\', '/')
-end
-
-function mines.basename(file)
-  vim.validate { file = { file, 'string', true } }
-  if file == nil then return nil end
-  vim.validate { file = { file, 's' } }
-  return file:match '[/\\]$' and '' or (file:match('[^\\/]*$'):gsub('\\', '/'))
-end
-
-function mines.extension(path)
-  vim.validate { path = { path, 'string' } }
-  assert(path ~= '', debug.traceback 'Empty path')
-  local extension = ''
-  path = mines.normalize(path)
-  if not mines.is_dir(path) then
-    local filename = mines.basename(path)
-    extension = filename:match '^.+(%..+)$' or ''
-  end
-  return #extension >= 2 and extension:sub(2, #extension) or extension
-end
-
-function mines.filename(path)
-  vim.validate { path = { path, 'string' } }
-  local name = vim.fs.basename(path)
-  local extension = mines.extension(name)
-  return extension ~= '' and name:gsub('%.' .. extension .. '$', '') or name
-end
-
----comment
----@return boolean
-function mines.has_sqlite()
-  local sqlite_clib_path = vim.g.sqlite_clib_path
-  if vim.fn.filereadable(vim.loop.os_homedir() .. '/.local/lib/libsqlite.so') then
-    sqlite_clib_path = vim.loop.os_homedir() .. '/.local/lib/libsqlite.so'
-  end
-  return vim.fn.executable 'sqlite3'
-end
-
----@param name string
-function mines.plugin_opts(name)
-  local plugin = require('lazy.core.config').plugins[name]
-  if not plugin then return {} end
-  local Plugin = require 'lazy.core.plugin'
-  return Plugin.values(plugin, 'opts', false)
 end
 
 ----------------------------------------------------------------------------------------------------
@@ -383,15 +197,13 @@ local autocmd_keys = { 'event', 'buffer', 'pattern', 'desc', 'command', 'group',
 ---@param name string
 ---@param command Autocommand
 local function validate_autocmd(name, command)
-  local incorrect = mines.fold(function(accum, _, key)
-    if not vim.tbl_contains(autocmd_keys, key) then table.insert(accum, key) end
-    return accum
-  end, command, {})
-
+  local incorrect = vim.iter(command):map(function(key, _)
+    if not vim.tbl_contains(autocmd_keys, key) then return key end
+  end)
   if #incorrect > 0 then
     vim.schedule(function()
-      local msg = 'Incorrect keys: ' .. table.concat(incorrect, ', ')
-      vim.notify(msg, 'error', { title = fmt('Autocmd: %s', name) })
+      local msg = ('Incorrect keys: %s'):format(table.concat(incorrect, ', '))
+      vim.notify(msg, 'error', { title = ('Autocmd: %s'):format(name) })
     end)
   end
 end
@@ -406,13 +218,13 @@ end
 ---@field data any
 
 ---@class Autocommand
----@field desc string
----@field event  string | string[] list of autocommand events
----@field pattern string | string[] list of autocommand patterns
+---@field desc string?
+---@field event  (string | string[])? list of autocommand events
+---@field pattern (string | string[])? list of autocommand patterns
 ---@field command string | fun(args: AutocmdArgs): boolean?
----@field nested  boolean
----@field once    boolean
----@field buffer  number
+---@field nested  boolean?
+---@field once    boolean?
+---@field buffer  number?
 
 ---Create an autocommand
 ---returns the group ID so that it can be cleared or manipulated.
@@ -455,11 +267,6 @@ function mines.command(name, rhs, opts)
   api.nvim_create_user_command(name, rhs, opts)
 end
 
----A terser proxy for `nvim_replace_termcodes`
----@param str string
----@return string
-function mines.replace_termcodes(str) return api.nvim_replace_termcodes(str, true, true, true) end
-
 ---check if a certain feature/version/commit exists in nvim
 ---@param feature string
 ---@return boolean
@@ -481,95 +288,427 @@ function mines.p_table(map)
   })
 end
 
+----------------------------------------------------------------------------------------------------
+-- Files
+----------------------------------------------------------------------------------------------------
 
-function mines.abbr(abbr)
-  vim.validate { abbrevation = { abbr, 'table' } }
-  if not abbr.mode or not abbr.lhs then
-    vim.notify('Missing arguments!! set_abbr need a mode and a lhs attribbutes', 'ERROR', { title = 'Nvim Abbrs' })
+mines.getcwd = uv.cwd
+
+function mines.forward_path(path) return path end
+
+function mines.buf_get_name(buf) return vim.api.nvim_buf_get_name(0) end
+
+function mines.get_current_file_path() return mines.buf_get_name(vim.api.nvim_get_current_buf()) end
+
+function mines.normalize(path)
+  vim.validate { path = { path, 'string' } }
+  assert(path ~= '', debug.traceback 'Empty path')
+  if path == '%' then
+    local cwd = ((uv.cwd() .. '/'):gsub('\\', '/'):gsub('/+', '/'))
+    path = (vim.api.nvim_buf_get_name(0):gsub(vim.pesc(cwd), ''))
+  end
+  return vim.fs.normalize(path)
+end
+
+function mines.exists(filename)
+  vim.validate { filename = { filename, 'string' } }
+  if filename == '' then return false end
+  local stat = uv.fs_stat(mines.normalize(filename))
+  return stat and stat.type or false
+end
+
+function mines.is_dir(filename) return mines.exists(filename) == 'directory' end
+
+function mines.is_file(filename) return mines.exists(filename) == 'file' end
+
+function mines.mkdir(dirname, recurive)
+  vim.validate {
+    dirname = { dirname, 'string' },
+    recurive = { recurive, 'boolean', true },
+  }
+  assert(dirname ~= '', debug.traceback 'Empty dirname')
+  if mines.is_dir(dirname) then return true end
+  dirname = mines.normalize(dirname)
+  local ok, msg, err = uv.fs_mkdir(dirname, 511)
+  if err == 'ENOENT' and recurive then
+    local dirs = vim.split(dirname, '/' .. '+')
+    local base = dirs[1] == '' and '/' or dirs[1]
+    if dirs[1] == '' or mines.is_root(dirs[1]) then table.remove(dirs, 1) end
+    for _, dir in ipairs(dirs) do
+      base = base .. '/' .. dir
+      if not mines.exists(base) then
+        ok, msg, _ = uv.fs_mkdir(base, 511)
+        if not ok then
+          vim.notify(msg, 'ERROR', { title = 'Mkdir' })
+          break
+        end
+      else
+        ok = mines.is_dir(base)
+        if not ok then break end
+      end
+    end
+  elseif not ok then
+    vim.notify(msg, 'ERROR', { title = 'Mkdir' })
+  end
+  return ok or false
+end
+
+function mines.link(src, dest, sym, force)
+  vim.validate {
+    source = { src, 'string' },
+    destination = { dest, 'string' },
+    use_symbolic = { sym, 'boolean', true },
+    force = { force, 'boolean', true },
+  }
+  assert(src ~= '', debug.traceback 'Empty source')
+  assert(dest ~= '', debug.traceback 'Empty destination')
+  assert(mines.exists(src), debug.traceback('link source ' .. src .. ' does not exists'))
+
+  if dest == '.' then dest = vim.fs.basename(src) end
+
+  dest = mines.normalize(dest)
+  src = mines.normalize(src)
+
+  assert(src ~= dest, debug.traceback 'Cannot link src to itself')
+
+  local status, msg, _
+
+  if not sym and mines.is_dir(src) then
+    vim.notify('Cannot hard link a directory', 'ERROR', { title = 'Link' })
     return false
   end
 
-  local command = {}
-  local extras = {}
-  local modes = { insert = 'i', command = 'c', }
-
-  local lhs, rhs = abbr.lhs, abbr.rhs
-  local args = type(abbr.args) == 'table' and abbr.args or { abbr.args }
-  local mode = modes[abbr.mode] or abbr.mode
-
-  if args.buffer ~= nil then table.insert(extras, '<buffer>') end
-
-  if args.expr ~= nil and rhs ~= nil then table.insert(extras, '<expr>') end
-
-  for _, v in pairs(extras) do table.insert(command, v) end
-
-  if mode == 'i' or mode == 'insert' then
-    if rhs == nil then
-      table.insert(command, 1, 'iunabbrev')
-      table.insert(command, lhs)
-    else
-      table.insert(command, 1, 'iabbrev')
-      table.insert(command, lhs)
-      table.insert(command, rhs)
+  if not force and mines.exists(dest) then
+    vim.notify('Dest already exists in ' .. dest, 'ERROR', { title = 'Link' })
+    return false
+  elseif force and mines.exists(dest) then
+    status, msg, _ = uv.fs_unlink(dest)
+    if not status then
+      vim.notify(msg, 'ERROR', { title = 'Link' })
+      return false
     end
-  elseif mode == 'c' or mode == 'command' then
-    if rhs == nil then
-      table.insert(command, 1, 'cunabbrev')
-      table.insert(command, lhs)
-    else
-      table.insert(command, 1, 'cabbrev')
-      table.insert(command, lhs)
-      table.insert(command, rhs)
-    end
+  end
+
+  if sym then
+    status, msg = uv.fs_symlink(src, dest, 438)
   else
-    vim.notify('Unsupported mode: ' .. vim.inspect(mode), 'ERROR', { title = 'Nvim Abbrs' })
+    status, msg = uv.fs_link(src, dest)
+  end
+
+  if not status then vim.notify(msg, 'ERROR', { title = 'Link' }) end
+
+  return status or false
+end
+
+function mines.executable(exec)
+  vim.validate { exec = { exec, 'string' } }
+  assert(exec ~= '', debug.traceback 'Empty executable string')
+  return vim.fn.executable(exec) == 1
+end
+
+function mines.exepath(exec)
+  vim.validate { exec = { exec, 'string' } }
+  assert(exec ~= '', debug.traceback 'Empty executable string')
+  local path = vim.fn.exepath(exec)
+  return path ~= '' and path or false
+end
+
+function mines.is_absolute(path)
+  vim.validate { path = { path, 'string' } }
+  assert(path ~= '', debug.traceback 'Empty path')
+  if path:sub(1, 1) == '~' then path = path:gsub('~', uv.os_homedir()) end
+  return path:sub(1, 1) == '/'
+end
+
+function mines.is_root(path)
+  vim.validate { path = { path, 'string' } }
+  assert(path ~= '', debug.traceback 'Empty path')
+
+  return path == '/'
+end
+
+function mines.realpath(path)
+  vim.validate { path = { path, 'string' } }
+  assert(mines.exists(path), debug.traceback(([[Path "%s" doesn't exists]]):format(path)))
+  return (uv.fs_realpath(mines.normalize(path)):gsub('\\', '/'))
+end
+
+function mines.basename(file)
+  vim.validate { file = { file, 'string', true } }
+  if file == nil then return nil end
+  return file:match '[/\\]$' and '' or (file:match('[^\\/]*$'):gsub('\\', '/'))
+end
+
+function mines.extension(path)
+  vim.validate { path = { path, 'string' } }
+  assert(path ~= '', debug.traceback 'Empty path')
+  local extension = ''
+  path = mines.normalize(path)
+  if not mines.is_dir(path) then
+    local filename = mines.basename(path)
+    extension = filename:match '^.+(%..+)$' or ''
+  end
+  return #extension >= 2 and extension:sub(2, #extension) or extension
+end
+
+function mines.filename(path)
+  vim.validate { path = { path, 'string' } }
+  local name = vim.fs.basename(path)
+  local extension = mines.extension(name)
+  return extension ~= '' and (name:gsub('%.' .. extension .. '$', '')) or name
+end
+
+function mines.dirname(file)
+  vim.validate { file = { file, 'string', true } }
+  if file == nil then return nil end
+
+  if not file:match '[\\/]' then
+    return '.'
+  elseif file == '/' or file:match '^/[^/]+$' then
+    return '/'
+  end
+  local dir = file:match '[/\\]$' and file:sub(1, #file - 1) or file:match '^([/\\]?.+)[/\\]'
+  return (dir:gsub('\\', '/'))
+end
+
+function mines.is_parent(parent, child)
+  vim.validate { parent = { parent, 'string' }, child = { child, 'string' } }
+  assert(mines.is_dir(parent), debug.traceback(('Parent path is not a directory "%s"'):format(parent)))
+  assert(mines.is_dir(child), debug.traceback(('Child path is not a directory "%s"'):format(child)))
+
+  child = mines.realpath(child)
+  parent = mines.realpath(parent)
+
+  local is_child = false
+  if mines.is_root(parent) or child:match('^' .. parent) then is_child = true end
+
+  return is_child
+end
+
+function mines.openfile(path, flags, callback)
+  vim.validate {
+    path = { path, 'string' },
+    flags = { flags, 'string' },
+    callback = { callback, 'function' },
+  }
+  assert(path ~= '', debug.traceback 'Empty path')
+
+  local fd, msg, _ = uv.fs_open(path, flags, 438)
+  if not fd then
+    vim.notify(msg, 'ERROR', { title = 'OpenFile' })
     return false
   end
+  local ok, rst = pcall(callback, fd)
+  assert(uv.fs_close(fd))
+  return rst or ok
+end
 
-  if args.silent ~= nil then
-    table.insert(command, 1, 'silent!')
+local function fs_write(path, data, append, callback)
+  vim.validate {
+    path = { path, 'string' },
+    data = {
+      data,
+      function(d) return type(d) == type '' or vim.tbl_islist(d) end,
+      'a string or an array',
+    },
+    append = { append, 'boolean', true },
+    callback = { callback, 'function', true },
+  }
+
+  data = type(data) ~= type '' and table.concat(data, '\n') or data
+  local flags = append and 'a+' or 'w+'
+
+  if not callback then
+    return mines.openfile(path, flags, function(fd)
+      local stat = uv.fs_fstat(fd)
+      local offset = append and stat.size or 0
+      local ok, msg, _ = uv.fs_write(fd, data, offset)
+      if not ok then vim.notify(msg, 'ERROR', { title = 'Write file' }) end
+    end)
   end
 
-  api.nvim_command(table.concat(command, ' '))
+  uv.fs_open(path, 'r+', 438, function(oerr, fd)
+    assert(not oerr, oerr)
+    uv.fs_fstat(fd, function(serr, stat)
+      assert(not serr, serr)
+      local offset = append and stat.size or 0
+      uv.fs_write(fd, data, offset, function(rerr)
+        assert(not rerr, rerr)
+        uv.fs_close(fd, function(cerr)
+          assert(not cerr, cerr)
+          return callback()
+        end)
+      end)
+    end)
+  end)
 end
 
-------------------------------------------------------------------------------------------------------------------------
---  Lazy Requires
-------------------------------------------------------------------------------------------------------------------------
---- source: https://github.com/tjdevries/lazy-require.nvim
+function mines.writefile(path, data, callback) return fs_write(path, data, false, callback) end
 
---- Require on index.
----
---- Will only require the module after the first index of a module.
---- Only works for modules that export a table.
-function mines.reqidx(require_path)
-  return setmetatable({}, {
-    __index = function(_, key) return require(require_path)[key] end,
-    __newindex = function(_, key, value) require(require_path)[key] = value end,
-  })
+function mines.updatefile(path, data, callback)
+  assert(mines.is_file(path), debug.traceback('Not a file: ' .. path))
+  return fs_write(path, data, true, callback)
 end
 
---- Require when an exported method is called.
----
---- Creates a new function. Cannot be used to compare functions,
---- set new values, etc. Only useful for waiting to do the require until you actually
---- call the code.
----
---- ```lua
---- -- This is not loaded yet
---- local lazy_mod = lazy.require_on_exported_call('my_module')
---- local lazy_func = lazy_mod.exported_func
----
---- -- ... some time later
---- lazy_func(42)  -- <- Only loads the module now
----
---- ```
----@param require_path string
----@return table<string, fun(...): any>
-function mines.reqcall(require_path)
-  return setmetatable({}, {
-    __index = function(_, k)
-      return function(...) return require(require_path)[k](...) end
-    end,
-  })
+function mines.readfile(path, split, callback)
+  vim.validate {
+    path = { path, 'string' },
+    callback = { callback, 'function', true },
+    split = { split, 'boolean', true },
+  }
+  assert(mines.is_file(path), debug.traceback('Not a file: ' .. path))
+  if split == nil then split = true end
+  if not callback then
+    return mines.openfile(path, 'r', function(fd)
+      local stat = assert(uv.fs_fstat(fd))
+      local data = assert(uv.fs_read(fd, stat.size, 0))
+      if split then
+        data = vim.split(data, '[\r]?\n')
+        -- NOTE: This seems to always read an extra linefeed so we remove it if it's empty
+        if data[#data] == '' then data[#data] = nil end
+      end
+      return data
+    end)
+  end
+  uv.fs_open(path, 'r', 438, function(oerr, fd)
+    assert(not oerr, oerr)
+    uv.fs_fstat(fd, function(serr, stat)
+      assert(not serr, serr)
+      uv.fs_read(fd, stat.size, 0, function(rerr, data)
+        assert(not rerr, rerr)
+        uv.fs_close(fd, function(cerr)
+          assert(not cerr, cerr)
+          if split then
+            data = vim.split(data, '[\r]?\n')
+            if data[#data] == '' then data[#data] = nil end
+          end
+          return callback(data)
+        end)
+      end)
+    end)
+  end)
+end
+
+function mines.chmod(path, mode, base)
+  vim.validate {
+    path = { path, 'string' },
+    mode = {
+      mode,
+      function(m)
+        local isnumber = type(m) == type(1)
+        -- TODO: check for hex and bin ?
+        local isrepr = type(m) == type '' and m ~= ''
+        return isnumber or isrepr
+      end,
+      'valid integer representation',
+    },
+  }
+  assert(path ~= '', debug.traceback 'Empty path')
+  base = base == nil and 8 or base
+  local ok, msg, _ = uv.fs_chmod(path, tonumber(mode, base))
+  if not ok then vim.notify(msg, 'ERROR', { title = 'Chmod' }) end
+  return ok or false
+end
+
+function mines.ls(path, opts)
+  vim.validate {
+    path = { path, 'string' },
+    opts = { opts, 'table', true },
+  }
+  opts = opts or {}
+
+  local dir_it = uv.fs_scandir(path)
+  local filename, ftype
+  local results = {}
+
+  repeat
+    filename, ftype = uv.fs_scandir_next(dir_it)
+    if filename and (not opts.type or opts.type == ftype) then table.insert(results, path .. '/' .. filename) end
+  until not filename
+
+  return results
+end
+
+function mines.get_files(path) return mines.ls(path, { type = 'file' }) end
+
+function mines.get_dirs(path) return mines.ls(path, { type = 'directory' }) end
+
+function mines.decode_json(data)
+  vim.validate {
+    data = { data, { 'string', 'table' } },
+  }
+  if type(data) == type {} then data = table.concat(data, '\n') end
+  return vim.json.decode(data)
+end
+
+function mines.encode_json(data)
+  vim.validate {
+    data = { data, 'table' },
+  }
+  local json = vim.json.encode(data)
+  return (json:gsub('\\/', '/'))
+end
+
+function mines.read_json(filename)
+  vim.validate {
+    filename = { filename, 'string' },
+  }
+  assert(filename ~= '', debug.traceback 'Empty filename')
+  if filename:sub(1, 1) == '~' then filename = filename:gsub('~', uv.os_homedir()) end
+  assert(mines.is_file(filename), debug.traceback('Not a file: ' .. filename))
+  return mines.decode_json(mines.readfile(filename, false))
+end
+
+function mines.dump_json(filename, data)
+  vim.validate { filename = { filename, 'string' }, data = { data, 'table' } }
+  assert(filename ~= '', debug.traceback 'Empty filename')
+  if filename:sub(1, 1) == '~' then filename = filename:gsub('~', uv.os_homedir()) end
+  return mines.writefile(filename, mines.encode_json(data))
+end
+
+function mines.split(path) return vim.split(path, '/', { trimempty = true }) end
+
+-- Credits: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/util/init.lua
+-- returns the root directory based on:
+-- * lsp workspace folders
+-- * lsp root_dir
+-- * root pattern of filename of the current buffer
+-- * root pattern of cwd
+---@return string
+function mines.get_root()
+  local root_patterns = { '.git', '.hg', '.bzr', '.svn' }
+
+  ---@type string?
+  local path = vim.api.nvim_buf_get_name(0)
+  path = path ~= '' and vim.loop.fs_realpath(path) or nil
+  ---@type string[]
+  local roots = {}
+  if path then
+    for _, client in pairs(vim.lsp.get_active_clients { bufnr = 0 }) do
+      local workspace = client.config.workspace_folders
+      local paths = workspace and vim.tbl_map(function(ws) return vim.uri_to_fname(ws.uri) end, workspace)
+        or client.config.root_dir and { client.config.root_dir }
+        or {}
+      for _, p in ipairs(paths) do
+        local r = vim.loop.fs_realpath(p)
+        if path:find(r, 1, true) then roots[#roots + 1] = r end
+      end
+    end
+  end
+  table.sort(roots, function(a, b) return #a > #b end)
+  ---@type string?
+  local root = roots[1]
+  if not root then
+    path = path and vim.fs.dirname(path) or vim.loop.cwd()
+    ---@type string?
+    root = vim.fs.find(root_patterns, { path = path, upward = true })[1]
+    root = root and vim.fs.dirname(root) or vim.loop.cwd()
+  end
+  ---@cast root string
+  return root
+end
+
+function mines.reload(pkg)
+  package.loaded[pkg] = nil
+  return require(pkg)
 end

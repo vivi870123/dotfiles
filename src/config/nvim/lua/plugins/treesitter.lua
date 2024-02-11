@@ -1,23 +1,53 @@
 return {
-  {
+  { -- nvim-treesitter-textobjects
+    'nvim-treesitter/nvim-treesitter-textobjects',
+    init = function()
+      local plugin = require('lazy.core.config').spec.plugins['nvim-treesitter']
+      local opts = require('lazy.core.plugin').values(plugin, 'opts', false)
+      local enabled = false
+      if opts.textobjects then
+        for _, mod in ipairs { 'move', 'select', 'swap', 'lsp_interop' } do
+          if opts.textobjects[mod] and opts.textobjects[mod].enable then
+            enabled = true
+            break
+          end
+        end
+      end
+      if not enabled then require('lazy.core.loader').disable_rtp_plugin 'nvim-treesitter-textobjects' end
+    end,
+  },
+  { -- nvim-treesitter
     'nvim-treesitter/nvim-treesitter',
-    event = { 'BufReadPost', 'BufNewFile' },
     build = ':TSUpdate',
-    config = function()
+    event = 'FileType',
+    keys = {
+      { 'v', desc = 'Increment selection', mode = 'x' },
+      { 'V', desc = 'Shrink selection', mode = 'x' },
+    },
+    main = 'nvim-treesitter.configs',
+    opts = function()
+
+      -- stylua: ignore
+      local install_list = {
+        'bash', 'c', 'cmake', 'cpp', 'css', 'diff', 'dockerfile', 'gitcommit', 'gitignore',
+        'graphql', 'html', 'http', 'json', 'json5', 'jsonc', 'lua','luadoc', 'make', 'markdown',
+        'markdown_inline', 'ninja',  'php', 'phpdoc', 'python', 'query', 'regex', 'rust', 'sql',
+        'toml', 'todotxt', 'tsx', 'typescript', 'vim', 'xml', 'yaml', 'zig'
+        -- "comment", -- comments are slowing down TS bigtime, so disable for now
+      }
+
       -- @see: https://github.com/nvim-orgmode/orgmode/issues/481
       local ok, orgmode = pcall(require, 'orgmode')
       if ok then orgmode.setup_ts_grammar() end
 
-      -- stylua: ignore
-      local install_list = {
-        'bash', 'css', 'diff', 'dockerfile', 'gitcommit', 'gitignore', 'graphql', 'html', 'http',
-        'json', 'json5', 'jsonc', 'lua', 'luadoc', 'make', 'markdown', 'markdown_inline',
-        'php', 'phpdoc', 'python', 'query', 'regex', 'rust', 'sql', 'toml', 'todotxt', 'vim', 'yaml',
-        -- "comment", -- comments are slowing down TS bigtime, so disable for now
-      }
-
-      require('nvim-treesitter.configs').setup {
+      return {
+        auto_install = true,
         ensure_installed = install_list,
+
+        highlight = {
+          enable = true,
+          additional_vim_regex_highlighting = { 'org', 'php', 'sql' },
+        },
 
         indent = {
           enable = true,
@@ -30,19 +60,36 @@ return {
           end,
         },
 
-        context_commentstring = {
+        -- See: https://github.com/windwp/nvim-ts-autotag
+        autotag = {
           enable = true,
-          enable_autocmd = false, -- we will use nvim-ts-context-commentstring
-          config = {
-            lua = '--  %s',
-            css = '// %s',
-            javascriptreact = { style_element = '{/*%s*/}' },
+          -- Removed markdown due to errors
+          filetypes = {
+            'glimmer',
+            'handlebars',
+            'hbs',
+            'html',
+            'javascript',
+            'javascriptreact',
+            'jsx',
+            'rescript',
+            'svelte',
+            'tsx',
+            'typescript',
+            'typescriptreact',
+            'vue',
+            'xml',
           },
         },
 
-        highlight = {
+        incremental_selection = {
           enable = true,
-          additional_vim_regex_highlighting = { 'org', 'php' },
+          keymaps = {
+            init_selection = false,
+            node_incremental = 'v',
+            scope_incremental = false,
+            node_decremental = 'V',
+          },
         },
 
         textobjects = {
@@ -60,12 +107,16 @@ return {
           },
         },
 
-        playground = { persist_queries = true },
+        autopairs = {
+          enable = true,
+        },
+
+        query_linter = {
+          enable = true,
+          use_virtual_text = true,
+          lint_events = { 'BufWrite', 'CursorHold' },
+        },
       }
     end,
-    dependencies = {
-      { 'nvim-treesitter/nvim-treesitter-textobjects' },
-    },
   },
-  { 'JoosepAlviste/nvim-ts-context-commentstring' },
 }

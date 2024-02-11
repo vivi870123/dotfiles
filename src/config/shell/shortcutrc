@@ -1,36 +1,34 @@
 # vim: filetype=sh
-alias cac="cd /home/chris/.cache && ls --color=auto -a" \
-cf="cd /home/chris/.config && ls --color=auto -a" \
-d="cd /home/chris/Downloads && ls --color=auto -a" \
-dd="cd /home/chris/Documents && ls --color=auto -a" \
-D="cd /home/chris/.dotfiles && ls --color=auto -a" \
-dt="cd /home/chris/.local/share && ls --color=auto -a" \
-h="cd /home/chris && ls --color=auto -a" \
-m="cd /home/chris/Music && ls --color=auto -a" \
-mn="cd /mnt && ls --color=auto -a" \
-p="cd /home/chris/Pictures && ls --color=auto -a" \
-P="cd /home/chris/projects && ls --color=auto -a" \
-T="cd /home/jrogers/Downloads/torrents && ls --color=auto -a" \
-sc="cd /home/chris/.local/bin && ls --color=auto -a" \
-src="cd /home/chris/.local/src && ls --color=auto -a" \
-vv="cd /home/chris/Videos && ls --color=auto -a" \
+alias cac="cd /home/chris/.cache && eza -a" \
+cf="cd /home/chris/.config && eza -a" \
+D="cd /home/chris/Downloads && eza -a" \
+d="cd /home/chris/Documents && eza -a" \
+dot="cd /home/chris/.dotfiles && eza -a" \
+dt="cd /home/chris/.local/share && eza -a" \
+h="cd /home/chris && eza -a" \
+rr="cd /home/chris/.local/src && eza -a" \
+m="cd /home/chris/Music && eza -a" \
+mn="cd /mnt && eza -a" \
+p="cd /home/chris/Pictures && eza -a" \
+P="cd /home/chris/projects && eza -a" \
+T="cd /home/jrogers/Downloads/torrents && eza -a" \
+sc="cd /home/chris/.local/bin && eza -a" \
+src="cd /home/chris/.local/src && eza -a" \
+vv="cd /home/chris/Videos && eza -a" \
 bf="$EDITOR /home/chris/.config/shell/bm-files" \
 bd="$EDITOR /home/chris/.config/shell/bm-dirs" \
-cfa="$EDITOR /home/chris/.config/zsh-abbr/user-abbreviations" \
-cfe="$EDITOR /home/chris/.config/zsh/zshenv" \
+cfx="$EDITOR /home/chris/.config/x11/xresources" \
+cfb="$EDITOR ~/.local/src/dwmblocks/config.h" \
+cfv="$EDITOR /home/chris/.config/nvim/init.lua" \
 cfz="$EDITOR /home/chris/.config/zsh/.zshrc" \
-cfi="$EDITOR /home/chris/.config/zsh/.zimrc" \
-cfn="$EDITOR /home/chris/.config/nvim/init.lua" \
-cfnp="$EDITOR /home/chris/.config/nvim/lua/plugins/init.lua" \
-cfr="$EDITOR /home/chris/.config/newsboat/config" \
-cfru="$EDITOR /home/chris/.config/newsboat/urls" \
+cfl="$EDITOR /home/chris/.config/zsh/lazy.zsh" \
+cfa="$EDITOR /home/chris/.config/shell/aliasrc" \
+cfn="$EDITOR /home/chris/.config/newsboat/config" \
+cfu="$EDITOR /home/chris/.config/newsboat/urls" \
 cfmb="$EDITOR /home/chris/.config/ncmpcpp/bindings" \
 cfmc="$EDITOR /home/chris/.config/ncmpcpp/config" \
-cfx="$EDITOR /home/chris/.config/sxiv/exec/key-handler" \
-cfs="$EDITOR /home/chris/.config/sway/config" \
-cfw="$EDITOR /home/chris/.config/waybar/config.jsonc" \
 cfk="$EDITOR /home/chris/.config/kitty/kitty.conf" \
-cfT="$EDITOR /home/chris/.config/transmission-daemon/settings.json" \
-cft="$EDITOR /home/chris/.config/tmux/tmux.conf" \
+cft="$EDITOR /home/chris/.config/transmission-daemon/settings.json" \
 cff="$EDITOR /home/chris/.config/lf/lfrc" \
-cffp="$EDITOR /home/chris/.config/lf/preview" \
+cfF="$EDITOR /home/chris/.config/lf/preview" \
+cfX="$EDITOR /home/chris/.config/nsxiv/exec/key-handler" \

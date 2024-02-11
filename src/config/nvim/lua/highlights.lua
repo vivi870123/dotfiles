@@ -1,4 +1,4 @@
-local api, notify, fmt = vim.api, vim.notify, string.format
+local api, notify, fmt, augroup = vim.api, vim.notify, string.format, mines.augroup
 
 ---@alias HLAttrs {from: string, attr: "fg" | "bg", alter: integer}
 
@@ -19,24 +19,24 @@ local api, notify, fmt = vim.api, vim.notify, string.format
 ---@field default boolean
 
 ---@class HLArgs
----@field blend integer
----@field fg string | HLAttrs
----@field bg string | HLAttrs
----@field sp string | HLAttrs
----@field bold boolean
----@field italic boolean
----@field undercurl boolean
----@field underline boolean
----@field underdotted boolean
----@field underdashed boolean
----@field underdouble boolean
----@field strikethrough boolean
----@field reverse boolean
----@field nocombine boolean
----@field link string
----@field default boolean
----@field clear boolean
----@field inherit string
+---@field blend integer?
+---@field fg (string | HLAttrs)?
+---@field bg (string | HLAttrs)?
+---@field sp (string | HLAttrs)?
+---@field bold boolean?
+---@field italic boolean?
+---@field undercurl boolean?
+---@field underline boolean?
+---@field underdotted boolean?
+---@field underdashed boolean?
+---@field underdouble boolean?
+---@field strikethrough boolean?
+---@field reverse boolean?
+---@field nocombine boolean?
+---@field link string?
+---@field default boolean?
+---@field clear boolean?
+---@field inherit string?
 
 local attrs = {
   fg = true,
@@ -164,7 +164,6 @@ local function set(ns, name, opts)
     if attrs[attribute] then hl[attribute] = new_data end
   end
 
-  local msg = ('failed to set highlight "%s" with value %s'):format(name, vim.inspect(hl))
   mines.pcall(fmt('setting highlight "%s"', name), api.nvim_set_hl, ns, name, hl)
 end
 
@@ -172,7 +171,7 @@ end
 ---@param hls {[string]: HLArgs}[]
 ---@param namespace integer?
 local function all(hls, namespace)
-  vim.iter(ipairs(hls)):each(function(_, hl) set(namespace or 0, next(hl)) end)
+  vim.iter(hls):each(function(hl) set(namespace or 0, next(hl)) end)
 end
 
 --- Set window local highlights
@@ -212,13 +211,11 @@ local function plugin(name, opts)
     opts = add_theme_overrides(opts.theme)
     if not next(opts) then return end
   end
-  all(opts)
-  -- capitalise the name for autocommand convention sake
-  mines.augroup(fmt('%sHighlightOverrides', name:gsub('^%l', string.upper)), {
+  vim.schedule(function() all(opts) end)
+  augroup(fmt('%sHighlightOverrides', name:gsub('^%l', string.upper)), {
     event = 'ColorScheme',
     command = function()
-      -- Defer resetting these highlights to ensure they apply after other overrides
-      vim.defer_fn(function() all(opts) end, 1)
+      vim.schedule(function() all(opts) end)
     end,
   })
 end

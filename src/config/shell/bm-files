@@ -11,6 +11,7 @@ cfb	~/.local/src/dwmblocks/config.h				# dwmblocks: the status bar for dwm
 # aliases used by zsh (and potentially other shells)
 cfv	  ${XDG_CONFIG_HOME:-$HOME/.config}/nvim/init.lua	                # neovim config
 cfz	  $ZDOTDIR/.zshrc                                                       # zsh (shell) config	
+cfl	  $ZDOTDIR/lazy.zsh                                                     # zsh lazy config file
 cfa	  ${XDG_CONFIG_HOME:-$HOME/.config}/shell/aliasrc                       # aliases used by zsh (and potentially other shells)
 cfn	  ${XDG_CONFIG_HOME:-$HOME/.config}/newsboat/config                     # newsboat (RSS reader)
 cfu	  ${XDG_CONFIG_HOME:-$HOME/.config}/newsboat/urls                       # RSS urls for newsboat

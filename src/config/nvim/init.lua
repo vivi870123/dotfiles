@@ -1,31 +1,8 @@
-if vim.g.vscode then return end -- if someone has forced me to use vscode don't load my config
-
-local g, fn, opt, loop, env, cmd = vim.g, vim.fn, vim.opt, vim.loop, vim.env, vim.cmd
-local data = fn.stdpath 'data'
+if vim.g.vscode then return end
 
 if vim.loader then vim.loader.enable() end
 
-g.os = loop.os_uname().sysname
-g.open_command = 'xdg-open'
-g.dotfiles = env.DOTFILES or fn.expand '~/.dotfiles'
-g.vim_dir = g.dotfiles .. '/.config/nvim'
-g.projects_dir = env.PROJECTS_DIR or fn.expand '~/projects'
-g.data_dir = data
-g.cache_dir = fn.stdpath 'cache'
-g.vim_runtime = '~/.asdf/installs/neovim/nightly/share/nvim/runtime'
-g.db_root = function()
-  local root = data .. '/databases'
-  if vim.fn.isdirectory(root) ~= 1 then vim.fn.mkdir(root, 'p') end
-  return root
-end
-
-g.tmp_dir = function(filename) return '/tmp/' .. filename end
-
-----------------------------------------------------------------------------------------------------
--- Leader bindings
-----------------------------------------------------------------------------------------------------
-g.mapleader = ' '      -- leader key
-g.maplocalleader = ';' -- local leader
+local sys = require 'sys'
 
 ----------------------------------------------------------------------------------------------------
 -- Global namespace
@@ -36,12 +13,16 @@ local namespace = {
     winbar = { enable = false },
     statuscolumn = { enable = true },
     statusline = { enable = true },
+    tabline = { enable = true },
   },
 
+  -- some vim mappings require a mixture of commandline commands and function calls
   -- this table is place to store lua functions to be called in those mappings
   mappings = { enable = true },
 }
 
+-- This table is a globally accessible store to facilitating accessing
+-- helper functions and variables throughout my config
 _G.mines = mines or namespace
 _G.map = vim.keymap.set
 _G.P = vim.print
@@ -53,13 +34,14 @@ _G.P = vim.print
 require 'globals'
 require 'highlights'
 require 'ui'
+require 'settings'
 
 ------------------------------------------------------------------------------------------------------
--- Plugins
+-- Plugin Manager Setup
 ------------------------------------------------------------------------------------------------------
-local lazypath = data .. '/lazy/lazy.nvim'
-if not loop.fs_stat(lazypath) then
-  fn.system {
+local lazypath = sys.data .. '/lazy/lazy.nvim'
+if not vim.loop.fs_stat(lazypath) then
+  vim.fn.system {
     'git',
     'clone',
     '--filter=blob:none',
@@ -69,34 +51,47 @@ if not loop.fs_stat(lazypath) then
   }
   vim.notify 'Installed lazy.nvim'
 end
-opt.runtimepath:prepend(lazypath)
-
-----------------------------------------------------------------------------------------------------
---  $NVIM
-----------------------------------------------------------------------------------------------------
--- NOTE: this must happen after the lazy path is setup
+vim.opt.runtimepath:prepend(lazypath)
 
 -- If opening from inside neovim terminal then do not load other plugins
-if env.NVIM then return require('lazy').setup { { 'willothy/flatten.nvim', config = true } } end
-------------------------------------------------------------------------------------------------------
+if vim.env.NVIM then return require('lazy').setup { { 'willothy/flatten.nvim', config = true } } end
 
-require('lazy').setup('plugins', {
-  ui = { border = mines.ui.current.border },
-  defaults = { lazy = true },
-  change_detection = { notify = false },
+-- Start lazy.nvim plugin manager.
+require('lazy').setup {
+  spec = {
+    { import = 'plugins' },
+    { import = 'plugins.mini' },
+  },
+  lockfile = sys.data .. '/lazy-lock.json', -- lockfile generated after running update.
+  concurrency = vim.loop.available_parallelism() * 2,
+  defaults = { lazy = true, version = false },
+  install = { missing = true, colorscheme = {} },
   checker = {
     enabled = true,
     concurrency = 30,
     notify = false,
     frequency = 3600, -- check for updates every hour
   },
+  change_detection = { notify = false },
+  ui = { border = mines.ui.current.border },
+  diff = { cmd = 'terminal_git' },
   performance = {
     rtp = {
-      paths = { data .. '/site' },
-      disabled_plugins = { 'netrw', 'netrwPlugin' },
+      paths = { sys.data .. '/site' },
+      disabled_plugins = {
+        'gzip',
+        'vimballPlugin',
+        'matchit',
+        'matchparen',
+        '2html_plugin',
+        'tarPlugin',
+        'netrwPlugin',
+        'tutor',
+        'zipPlugin',
+      },
     },
   },
-})
+}
 
 map('n', '<leader>pm', '<Cmd>Lazy<CR>', { desc = 'manage' })
 
@@ -104,4 +99,9 @@ map('n', '<leader>pm', '<Cmd>Lazy<CR>', { desc = 'manage' })
 -- Builtin Packages
 ------------------------------------------------------------------------------------------------------
 -- cfilter plugin allows filtering down an existing quickfix list
-cmd.packadd 'cfilter'
+vim.cmd.packadd 'cfilter'
+
+------------------------------------------------------------------------------------------------------
+-- Colour Scheme {{{1
+------------------------------------------------------------------------------------------------------
+mines.pcall('theme failed to load because', vim.cmd.colorscheme, 'doom-one') -- night-owl

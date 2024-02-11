@@ -1,9 +1,10 @@
+if not mines then return end
+
 local P = mines.ui.palette
 local highlight = mines.highlight
 
 local function general_overrides()
-  highlight.all {
-
+  highlight.all({
     -----------------------------------------------------------------------------//
     -- Native
     -----------------------------------------------------------------------------//
@@ -12,14 +13,14 @@ local function general_overrides()
     { CursorLineNr = { bg = 'NONE' } },
     { iCursor = { bg = P.dark_blue } },
     { PmenuSbar = { link = 'Normal' } },
-
+    { Folded = { bg = { from = 'Normal', alter = 0.1 } } },
     --------------------------------------------//
     -- Floats
     ---------------------------------------------//
     { NormalFloat = { bg = { from = 'Normal', alter = -0.15 } } },
+    { NormalFloatBorder  = { fg = { from = 'Normal', alter = -0.42 } } },
     { FloatBorder = { bg = { from = 'NormalFloat' }, fg = { from = 'Comment' } } },
     { FloatTitle = { bold = true, fg = 'white', bg = { from = 'FloatBorder', attr = 'fg' } } },
-
     -----------------------------------------------------------------------------//
     -- Created highlights
     -----------------------------------------------------------------------------//
@@ -31,13 +32,11 @@ local function general_overrides()
     { CodeBlock = { bg = { from = 'Normal', alter = 0.3 } } },
     { markdownCode = { link = 'CodeBlock' } },
     { markdownCodeBlock = { link = 'CodeBlock' } },
-
     -----------------------------------------------------------------------------//
     --  Spell
     -----------------------------------------------------------------------------//
     { SpellBad = { undercurl = true, bg = 'NONE', fg = 'NONE', sp = 'green' } },
     { SpellRare = { undercurl = true } },
-
     -----------------------------------------------------------------------------//
     -- Diff
     -----------------------------------------------------------------------------//
@@ -58,19 +57,17 @@ local function general_overrides()
     { diffIsA = { link = 'WarningMsg' } },
     { diffNoEOL = { link = 'WarningMsg' } },
     { diffOnly = { link = 'WarningMsg' } },
-
     -----------------------------------------------------------------------------//
     -- colorscheme overrides
     -----------------------------------------------------------------------------//
     { Type = { italic = true, bold = true } },
     { Include = { italic = true, bold = false } },
-    { QuickFixLine = { inherit = 'PmenuSbar', fg = 'NONE', italic = true } },
+    { QuickFixLine = { inherit = 'CursorLine', fg = 'NONE', italic = true } },
     -- Neither the sign column or end of buffer highlights require an explicit bg
     -- they should both just use the bg that is in the window they are in.
     -- if either are specified this can lead to issues when a winhighlight is set
     { SignColumn = { bg = 'NONE' } },
     { EndOfBuffer = { bg = 'NONE' } },
-
     ------------------------------------------------------------------------------//
     --  Semantic tokens
     ------------------------------------------------------------------------------//
@@ -98,26 +95,28 @@ local function general_overrides()
     { ['@text.diff.add'] = { link = 'DiffAdd' } },
     { ['@text.diff.delete'] = { link = 'DiffDelete' } },
     { ['@text.title.markdown'] = { underdouble = true } },
-
-    -- -----------------------------------------------------------------------------//
-    -- -- LSP
-    -- -----------------------------------------------------------------------------//
-    -- { LspReferenceText = { bg = 'NONE', underline = true, sp = { from = 'Comment', attr = 'fg' } } },
-    -- { LspReferenceRead = { link = 'LspReferenceText' } },
-    -- { LspReferenceWrite = { inherit = 'LspReferenceText', bold = true, italic = true, underline = true } },
-    -- { LspSignatureActiveParameter = { link = 'Visual' } },
-    -- -- Floating windows
-    -- { DiagnosticFloatingWarn = { link = 'DiagnosticWarn' } },
-    -- { DiagnosticFloatingInfo = { link = 'DiagnosticInfo' } },
-    -- { DiagnosticFloatingHint = { link = 'DiagnosticHint' } },
-    -- { DiagnosticFloatingError = { link = 'DiagnosticError' } },
-    -- { DiagnosticFloatTitle = { inherit = 'FloatTitle', bold = true } },
-    -- { DiagnosticFloatTitleIcon = { inherit = 'FloatTitle', fg = { from = '@character' } } },
-  }
+    -----------------------------------------------------------------------------//
+    -- LSP
+    -----------------------------------------------------------------------------//
+    { LspReferenceWrite = { inherit = 'LspReferenceText', bold = true, italic = true, underline = true } },
+    { LspSignatureActiveParameter = { link = 'Visual' } },
+    -- Sign column line
+    { DiagnosticSignInfoLine = { inherit = 'DiagnosticVirtualTextInfo', fg = 'NONE' } },
+    { DiagnosticSignHintLine = { inherit = 'DiagnosticVirtualTextHint', fg = 'NONE' } },
+    { DiagnosticSignErrorLine = { inherit = 'DiagnosticVirtualTextError', fg = 'NONE' } },
+    { DiagnosticSignWarnLine = { inherit = 'DiagnosticVirtualTextWarn', fg = 'NONE' } },
+    -- Floating windows
+    { DiagnosticFloatingWarn = { link = 'DiagnosticWarn' } },
+    { DiagnosticFloatingInfo = { link = 'DiagnosticInfo' } },
+    { DiagnosticFloatingHint = { link = 'DiagnosticHint' } },
+    { DiagnosticFloatingError = { link = 'DiagnosticError' } },
+    { DiagnosticFloatTitle = { inherit = 'FloatTitle', bold = true } },
+    { DiagnosticFloatTitleIcon = { inherit = 'FloatTitle', fg = { from = '@character' } } },
+  })
 end
 
 local function set_sidebar_highlight()
-  highlight.all {
+  highlight.all({
     { PanelDarkBackground = { bg = { from = 'Normal', alter = -0.42 } } },
     { PanelDarkHeading = { inherit = 'PanelDarkBackground', bold = true } },
     { PanelBackground = { bg = { from = 'Normal', alter = -0.8 } } },
@@ -125,21 +124,19 @@ local function set_sidebar_highlight()
     { PanelWinSeparator = { inherit = 'PanelBackground', fg = { from = 'WinSeparator' } } },
     { PanelStNC = { link = 'PanelWinSeparator' } },
     { PanelSt = { bg = { from = 'Visual', alter = -0.2 } } },
-  }
+  })
 end
 
 local sidebar_fts = {
-  'packer',
   'flutterToolsOutline',
   'undotree',
   'Outline',
   'dbui',
   'neotest-summary',
-  'pr',
 }
 
 local function on_sidebar_enter()
-  vim.opt_local.winhighlight:append {
+  vim.opt_local.winhighlight:append({
     Normal = 'PanelBackground',
     EndOfBuffer = 'PanelBackground',
     StatusLine = 'PanelSt',
@@ -147,22 +144,29 @@ local function on_sidebar_enter()
     SignColumn = 'PanelBackground',
     VertSplit = 'PanelVertSplit',
     WinSeparator = 'PanelWinSeparator',
-  }
+  })
 end
 
 local function colorscheme_overrides()
   local overrides = {
-    ['doom-one'] = {
-      { ['@namespace'] = { fg = P.blue } },
-      { CursorLineNr = { fg = { from = 'Keyword' } } },
-      { LineNr = { bg = 'NONE' } },
-      { NeoTreeIndentMarker = { link = 'Comment' } },
-      { NeoTreeRootName = { bold = true, italic = true, fg = 'LightMagenta' } },
+    ['horizon'] = {
+      { Constant = { bold = true } },
+      { NonText = { fg = { from = 'Comment' } } },
+      { TabLineSel = { fg = { from = 'SpecialKey' } } },
+      { ['@variable'] = { fg = { from = 'Normal' } } },
+      { ['@constant.comment'] = { inherit = 'Constant', bold = true } },
+      { ['@constructor.lua'] = { inherit = 'Type', italic = false, bold = false } },
+      { ['@lsp.type.parameter'] = { fg = { from = 'Normal' } } },
+      { VisibleTab = { bg = { from = 'Normal', alter = 0.4 }, bold = true } },
+      { PanelBackground = { link = 'Normal' } },
+      { PanelWinSeparator = { inherit = 'PanelBackground', fg = { from = 'WinSeparator' } } },
+      { PanelHeading = { bg = 'bg', bold = true, fg = { from = 'Normal', alter = -0.3 } } },
+      { PanelDarkBackground = { bg = { from = 'Normal', alter = -0.25 } } },
+      { PanelDarkHeading = { inherit = 'PanelDarkBackground', bold = true } },
     },
   }
   local hls = overrides[vim.g.colors_name]
-  if not hls then return end
-  highlight.all(hls)
+  if hls then highlight.all(hls) end
 end
 
 local function user_highlights()

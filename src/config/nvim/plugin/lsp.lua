@@ -1,28 +1,25 @@
+if not mines then return end
+
 local lsp, fs, fn, api, fmt = vim.lsp, vim.fs, vim.fn, vim.api, string.format
-local diagnostic, S, L = vim.diagnostic, vim.diagnostic.severity, vim.lsp.log_levels
-local ui, falsy = mines.ui, mines.falsy
-local icons, border = ui.icons.lsp, ui.current.border
+local diagnostic = vim.diagnostic
+local L, S = vim.lsp.log_levels, vim.diagnostic.severity
+local M = vim.lsp.protocol.Methods
+
+local icons = mines.ui.icons.lsp
+local border = mines.ui.current.border
+local augroup = mines.augroup
+local command = mines.command
 
 if vim.env.DEVELOPING then vim.lsp.set_log_level(L.DEBUG) end
 
----@enum
-local provider = {
-  HOVER = 'hoverProvider',
-  RENAME = 'renameProvider',
-  CODEACTIONS = 'codeActionProvider',
-  CODELENS = 'codeLensProvider',
-  FORMATTING = 'documentFormattingProvider',
-  REFERENCES = 'documentHighlightProvider',
-  DEFINITION = 'definitionProvider',
-}
-
------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
 --  LSP file Rename
------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+
 ---@param data { old_name: string, new_name: string }
 local function prepare_rename(data)
   local bufnr = fn.bufnr(data.old_name)
-  for _, client in pairs(lsp.get_active_clients { bufnr = bufnr }) do
+  for _, client in pairs(lsp.get_clients { bufnr = bufnr }) do
     local rename_path = { 'server_capabilities', 'workspace', 'fileOperations', 'willRename' }
     if not vim.tbl_get(client, rename_path) then
       return vim.notify(fmt('%s does not LSP file rename', client.name), 'info', { title = 'LSP' })
@@ -30,8 +27,9 @@ local function prepare_rename(data)
     local params = {
       files = { { newUri = 'file://' .. data.new_name, oldUri = 'file://' .. data.old_name } },
     }
+    ---@diagnostic disable-next-line: invisible
     local resp = client.request_sync('workspace/willRenameFiles', params, 1000)
-    vim.lsp.util.apply_workspace_edit(resp.result, client.offset_encoding)
+    if resp then vim.lsp.util.apply_workspace_edit(resp.result, client.offset_encoding) end
   end
 end
 
@@ -45,9 +43,9 @@ local function rename_file()
   end)
 end
 
------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
 --  Related Locations
------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
 -- This relates to:
 -- 1. https://github.com/neovim/neovim/issues/19649#issuecomment-1327287313
 -- 2. https://github.com/neovim/neovim/issues/22744#issuecomment-1479366923
@@ -63,61 +61,65 @@ local function show_related_locations(diag)
       fn.fnamemodify(vim.uri_to_fname(info.location.uri), ':p:.'),
       info.location.range.start.line + 1,
       info.location.range.start.character + 1,
-      not falsy(info.message) and (': %s'):format(info.message) or ''
+      not mines.falsy(info.message) and (': %s'):format(info.message) or ''
     )
   end
   return diag
 end
 
-local handler = lsp.handlers['textDocument/publishDiagnostics']
+local handler = lsp.handlers[M.textDocument_publishDiagnostics]
 ---@diagnostic disable-next-line: duplicate-set-field
-lsp.handlers['textDocument/publishDiagnostics'] = function(err, result, ctx, config)
+lsp.handlers[M.textDocument_publishDiagnostics] = function(err, result, ctx, config)
   result.diagnostics = vim.tbl_map(show_related_locations, result.diagnostics)
   handler(err, result, ctx, config)
 end
 
------------------------------------------------------------------------------
+-----------------------------------------------------------------------------//
 -- Mappings
------------------------------------------------------------------------------
-
-local function prev_diagnostic(lvl)
-  return function() diagnostic.goto_prev { float = true, severity = { min = lvl } } end
+-----------------------------------------------------------------------------//
+---@param next boolean
+---@param severity string|nil
+---@return fun()
+local function diagnostic_goto(next, severity)
+  local go = next and vim.diagnostic.goto_next or vim.diagnostic.goto_prev
+  local severity_int = severity and vim.diagnostic.severity[severity] or nil
+  return function() go { severity = severity_int } end
 end
-local function next_diagnostic(lvl)
-  return function() diagnostic.goto_next { float = true, severity = { min = lvl } } end
+
+local toggle_inlay_hint = function()
+  local enabled = lsp.inlay_hint.is_enabled(0)
+  lsp.inlay_hint.enable(0, not enabled)
 end
 
 ---Setup mapping when an lsp attaches to a buffer
 ---@param client lsp.Client
 ---@param bufnr integer
 local function setup_mappings(client, bufnr)
-  local has_glance, _ = pcall(require, 'glance')
-  local cmd = '<cmd>%s<CR>'
-
-  -- stylua: ignore
+  local ts = { 'typescript', 'typescriptreact' }
   local mappings = {
-    { 'n', ']d', next_diagnostic(), desc = 'go to prev diagnostic' },
-    { 'n', '[d', prev_diagnostic(), desc = 'go to next diagnostic' },
-    { 'n', '=D', diagnostic.setloclist, desc = 'workspace diagnostics' },
-    { 'n', '=d', diagnostic.open_float, desc = 'inline diagnostics' },
-    { 'n', 'K', lsp.buf.hover, desc = 'hover', capability = provider.HOVER },
-    { 'n', 'gd', cmd:format((has_glance and 'Glance definitions') or lsp.buf.definitions), desc = 'definition', capability = provider.DEFINITION, exclude = { 'typescript', 'typescriptreact' },},
-    { 'n', 'gh', lsp.buf.signature_help, desc = 'signature', capability = provider.SIGHATUREHELP },
-    { 'n', 'gr', cmd:format((has_glance and 'Glance references') or lsp.buf.references), desc = 'references', capability = provider.REFERENCES,},
-    { 'n', 'gI', lsp.buf.incoming_calls, desc = 'incoming calls' }, -- TODO: what provider is this?
-    { 'n', 'gi', cmd:format((has_glance and 'Glance implementations') or lsp.buf.implementation), desc = 'implementation',}, -- TODO: what provider is this?
-    { 'n', 'gy', cmd:format((has_glance and 'Glance type_definitions') or lsp.buf.type_definition), desc = 'go to type definition', capability = provider.DEFINITION,},
-    { 'n', 'gn', lsp.buf.rename, desc = 'rename', capability = provider.RENAME },
-    { { 'n', 'x' }, 'ga', lsp.buf.code_action, desc = 'code action', capability = provider.CODEACTIONS },
-    { 'n', '<leader>cl', lsp.codelens.run, desc = 'run code lens', capability = provider.CODELENS },
-    { 'n', '<leader>rf', lsp.buf.format, desc = 'format buffer', capability = provider.FORMATTING },
-    { 'n', '<leader>rN', rename_file, desc = 'rename file', capability = provider.RENAME },
-    { 'n', '=F', lsp.buf.format, desc = 'format buffer', capability = provider.FORMATTING },
+    { 'n', ']d', diagnostic_goto(true), desc = 'Next Diagnostic' },
+    { 'n', '[d', diagnostic_goto(false), desc = 'Prev Diagnostic' },
+    { 'n', ']D', diagnostic_goto(true, 'ERROR'), desc = 'Next Error' },
+    { 'n', '[D', diagnostic_goto(false, 'ERROR'), desc = 'Prev Error' },
+    { { 'n', 'x' }, 'ga', lsp.buf.code_action, desc = 'code action', capability = M.textDocument_codeAction },
+    { 'n', '=F', lsp.buf.format, desc = 'format buffer', capability = M.textDocument_formatting, exclude = ts },
+    { 'n', 'gd', lsp.buf.definition, desc = 'definition', capability = M.textDocument_definition, exclude = ts },
+    { 'n', 'gr', lsp.buf.references, desc = 'references', capability = M.textDocument_references },
+    { 'n', 'gh', lsp.buf.signature_help, desc = 'signature help', capability = M.textDocument_signatureHelp },
+    { 'n', 'K', lsp.buf.hover, desc = 'hover', capability = M.textDocument_hover },
+    { 'n', 'gI', lsp.buf.incoming_calls, desc = 'incoming calls', capability = M.textDocument_prepareCallHierarchy },
+    { 'n', 'gi', lsp.buf.implementation, desc = 'implementation', capability = M.textDocument_implementation },
+    { 'n', 'gy', lsp.buf.type_definition, desc = 'go to type definition', capability = M.textDocument_definition },
+    -- { 'n', '<leader>cl', lsp.codelens.run, desc = 'run code lens', capability = M.textDocument_codeLens },
+    { 'n', '<leader>ti', toggle_inlay_hint, desc = 'inlay hints toggle', M.textDocument_inlayHint },
+    { 'n', 'gn', lsp.buf.rename, desc = 'rename', capability = M.textDocument_rename },
+    { 'n', '<leader>rn', rename_file, desc = 'rename file', capability = M.textDocument_rename },
   }
+
   vim.iter(mappings):each(function(m)
     if
       (not m.exclude or not vim.tbl_contains(m.exclude, vim.bo[bufnr].ft))
-      and (not m.capability or client.server_capabilities[m.capability])
+      and (not m.capability or client.supports_method(m.capability))
     then
       map(m[1], m[2], m[3], { buffer = bufnr, desc = fmt('lsp: %s', m.desc) })
     end
@@ -128,7 +130,10 @@ end
 -- LSP SETUP/TEARDOWN
 -----------------------------------------------------------------------------//
 
----@alias ClientOverrides {on_attach: fun(client: lsp.Client, bufnr: number), semantic_tokens: fun(bufnr: number, client:slant_left token: table)}
+---@alias ClientOverrides {
+---on_attach: fun(client: lsp.Client, bufnr: number),
+---semantic_tokens: fun(bufnr: number, client: lsp.Client, token: table)
+---}
 
 --- A set of custom overrides for specific lsp clients
 --- This is a way of adding functionality for specific lsps
@@ -144,15 +149,16 @@ local client_overrides = {
   },
 }
 
+-----------------------------------------------------------------------------//
 -- Semantic Tokens
-------------------
+-----------------------------------------------------------------------------//
 
 ---@param client lsp.Client
 ---@param bufnr number
 local function setup_semantic_tokens(client, bufnr)
   local overrides = client_overrides[client.name]
   if not overrides or not overrides.semantic_tokens then return end
-  mines.augroup(fmt('LspSemanticTokens%s', client.name), {
+  augroup(fmt('LspSemanticTokens%s', client.name), {
     event = 'LspTokenUpdate',
     buffer = bufnr,
     desc = fmt('Configure the semantic tokens for the %s', client.name),
@@ -160,32 +166,32 @@ local function setup_semantic_tokens(client, bufnr)
   })
 end
 
------------------------------------------------------------------------------
+-----------------------------------------------------------------------------//
 -- Autocommands
------------------------------------------------------------------------------
+-----------------------------------------------------------------------------//
 
 ---@param client lsp.Client
 ---@param buf integer
 local function setup_autocommands(client, buf)
-  if client.server_capabilities[provider.FORMATTING] then
-    mines.augroup(('LspFormatting%d'):format(buf), {
+  if not client.supports_method(M.textDocument_formatting) then
+    augroup(('LspFormatting%d'):format(buf), {
       event = 'BufWritePre',
       buffer = buf,
       desc = 'LSP: Format on save',
       command = function(args)
         if not vim.g.formatting_disabled and not vim.b[buf].formatting_disabled then
           local clients = vim.tbl_filter(
-            function(c) return c.server_capabilities[provider.FORMATTING] end,
+            function(c) return c.server_capabilities[M.textDocument_formatting] end,
             lsp.get_active_clients { buffer = buf }
           )
-          if #clients >= 1 then lsp.buf.format { bufnr = args.buf, async = #clients == 1 } end
+          lsp.buf.format { bufnr = args.buf, async = #clients == 1 }
         end
       end,
     })
   end
 
-  if client.server_capabilities[provider.CODELENS] then
-    mines.augroup(('LspCodeLens%d'):format(buf), {
+  if client.supports_method(M.textDocument_codeLens) then
+    augroup(('LspCodeLens%d'):format(buf), {
       event = { 'BufEnter', 'InsertLeave', 'BufWritePost' },
       desc = 'LSP: Code Lens',
       buffer = buf,
@@ -194,8 +200,10 @@ local function setup_autocommands(client, buf)
     })
   end
 
-  if client.server_capabilities[provider.REFERENCES] then
-    mines.augroup(('LspReferences%d'):format(buf), {
+  if client.supports_method(M.textDocument_inlayHint, { bufnr = buf }) then vim.lsp.inlay_hint.enable(buf, true) end
+
+  if client.supports_method(M.textDocument_documentHighlight) then
+    augroup(('LspReferences%d'):format(buf), {
       event = { 'CursorHold', 'CursorHoldI' },
       buffer = buf,
       desc = 'LSP: References',
@@ -220,7 +228,7 @@ local function on_attach(client, bufnr)
   setup_semantic_tokens(client, bufnr)
 end
 
-mines.augroup('LspSetupCommands', {
+augroup('LspSetupCommands', {
   event = 'LspAttach',
   desc = 'setup the language server autocommands',
   command = function(args)
@@ -240,14 +248,14 @@ mines.augroup('LspSetupCommands', {
   end,
 })
 
------------------------------------------------------------------------------
 -- Commands
------------------------------------------------------------------------------
-mines.command('LspFormat', function() lsp.buf.format { bufnr = 0, async = false } end)
+-----------------------------------------------------------------------------//
 
------------------------------------------------------------------------------
+command('LspFormat', function() lsp.buf.format { bufnr = 0, async = false } end)
+
+-----------------------------------------------------------------------------//
 -- Signs
------------------------------------------------------------------------------
+-----------------------------------------------------------------------------//
 
 ---@param opts {highlight: string, icon: string}
 local function sign(opts)
@@ -274,7 +282,7 @@ sign { highlight = 'DiagnosticSignHint', icon = icons.hint }
 local ns = api.nvim_create_namespace 'severe-diagnostics'
 
 --- Restricts nvim's diagnostic signs to only the single most severe one per line
---- see `:help vim.diagnostic`
+-- see `:help vim.diagnostic`
 ---@param callback fun(namespace: integer, bufnr: integer, diagnostics: table, opts: table)
 ---@return fun(namespace: integer, bufnr: integer, diagnostics: table, opts: table)
 local function max_diagnostic(callback)
@@ -310,11 +318,11 @@ diagnostic.config {
   virtual_text = false and {
     severity = { min = S.WARN },
     spacing = 1,
-    prefix = '', -- TODO: in nvim-0.10.0 this can be a function, so format won't be necessary
-    format = function(d)
+    prefix = function(d)
       local level = diagnostic.severity[d.severity]
-      return fmt('%s %s', icons[level:lower()], d.message)
+      return icons[level:lower()]
     end,
+    update_in_insert = false,
   },
   float = {
     max_width = max_width,
@@ -329,5 +337,6 @@ diagnostic.config {
       local prefix = fmt('%s ', icons[level:lower()])
       return prefix, 'Diagnostic' .. level:gsub('^%l', string.upper)
     end,
+    update_in_insert = false,
   },
 }

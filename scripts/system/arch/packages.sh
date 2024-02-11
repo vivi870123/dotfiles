@@ -63,9 +63,6 @@ install_pacman_packages() {
   pacman_install "zathura" "zathura: TUI pdf viewer with vim-like bindings."
   pacman_install "zathura-pdf-mupdf" "zathura-pdf-mupdf: Allows mupdf pdf compatibility in zathura."
   pacman_install "poppler" "poppler: Manipulates .pdfs and gives"
-  pacman_install "fzf" "fzf: Fuzzy finder tool"
-  pacman_install "eza" "eza: A modern replacement for ls (community fork of exa)"
-  pacman_install "bat" "bat: Can highlight code output and display files"
   pacman_install "socat" "socat: Multipurpose relay"
   pacman_install "moreutils" "moreutils: Collection of useful unix tools."
   pacman_install "wireplumber" "wireplumber: Audio system."
@@ -81,15 +78,11 @@ install_pacman_packages() {
   pacman_install "jq" "jq: Command-line JSON processor"
   pacman_install "tmux" "tmux: Terminal multiplexer"
   pacman_install "less" "less: A terminal based program for viewing text files"
-  pacman_install "fd" "fd: Simple, fast and user-friendly alternative to find"
-  pacman_install "ripgrep" "ripgrep: A search tool that combines the usability of ag with the raw speed of grep"
   pacman_install "httpie" "httpie: human-friendly CLI HTTP client for the API era"
-  pacman_install "tldr" "tldr: Command line client for tldr, a collection of simplified and community-driven man pages."
   pacman_install "neofetch" "neofetch: A CLI system information tool written in BASH that supports displaying images."
   pacman_install "transmission-cli" "transmission-cli: BitTorrent client (CLI tools, daemon and web client)"
   pacman_install "gammastep" "gammastep: Adjust the color temperature of your screen according to your surroundings."
   pacman_install "bemenu" "bemenu: Dynamic menu library and client program inspired by dmenu"
-  pacman_install "zoxide" "zoxide: A smarter cd command for your terminal"
   pacman_install "wlroots" "wlroots: Modular Wayland compositor library"
   pacman_install "wtype" "wtype: Xdotool for wayland"
   pacman_install "wayland-protocols" "wayland-protocols: Specifications of extended wayland protocols"
@@ -99,13 +92,14 @@ install_pacman_packages() {
   pacman_install "swappy" "swappy: A Wayland native snapshot editing tool"
   pacman_install "slurp" "slurp: Select a region in a Wayland compositor"
   pacman_install "light" "light: Program to easily change brightness on backlight-controllers."
-  pacman_install "github-cli" "github-cli: Github cli"
-  pacman_install "tllist" "tllist: A typed linked c header file (for dwlb )"
-  pacman_install "sheldon" "sheldon: A fast and configurable shell pluggin manager"
-  pacman_install "git-delta" "git-delta: Syntax highlighting pager for git and diff output"
-  pacman_install "bob" "bob: A fast and configurable shell pluggin manager"
+  pacman_install "tllist" "tllist: A typed linked c header file"
   pacman_install "xdg-utils" "xdg-utils - command line tools that assist application with a variety of desktop integration tasks"
   pacman_install "xdg-user-dirs" "xdg-user-dirs - manage user directories"
+  pacman_install "yq" "yq - Command-line YAML, XML, TOML processor - jq wrapper for YAML/XML/TOML documents"
+  pacman_install "cargo-update" "yq - A cargo subcommand for checking and applying updates to installed executables"
+  pacman_install "fzf" "fzf: Fuzzy finder tool"
+  pacman_install "libgit" "libgit - A linkable library for git"
+  pacman_install "github-cli" "gh - The GitHub CLI"
 }
 
 install_aur_packages() {
@@ -125,7 +119,9 @@ install_aur_packages() {
   aur_install "clipman" "clipman: clipboard manager for Wayland"
   aur_install "wl-color-picker" "wl-color-picker: A wayland color picker that also works on wlroots"
   aur_install "wlr-randr" "wlr-randr: Utility to manage outputs of a Wayland compositor"
-  aur_install "nvm" "nvm: Node Version Manager - bash script to manage multiple active node.js version"
+  aur_install "mmv" "mmv: multiple move files"
+  aur_install "ghq" "ghq: Remote repository management made easy"
+
 
   # Themes, Icons, Cursor & Fonts
   aur_install "gtk-theme-arc-gruvbox-git" "gtk-theme-arc-gruvbox-git: dark GTK theme"
@@ -163,7 +159,27 @@ pacman_synchronize
 #==================================
 # Package Installation
 #==================================
-install_pacman_packages
-install_flatpack
-install_aur_packages
-install_git_packages
+# install_pacman_packages
+# rust_development
+# install_flatpack
+# install_aur_packages
+# install_git_packages
+#
+ install_cargo_package "ripgrep"
+ install_cargo_package "zoxide"
+ install_cargo_package "eza"
+ install_cargo_package "hgrep"
+ install_cargo_package "navi"
+ install_cargo_package "tealdeer"
+ install_cargo_package "bat"
+ install_cargo_package "fd-find"
+ install_cargo_package "topgrade"
+ install_cargo_package "tokei"
+ install_cargo_package "gitui"
+ install_cargo_package "git-delta"
+ install_cargo_package "fnm"
+ install_cargo_package "sheldon"
+ install_cargo_package "bob-nvim"
+ install_cargo_package "ttyper"
+
+

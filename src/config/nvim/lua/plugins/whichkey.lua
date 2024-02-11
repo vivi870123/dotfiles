@@ -1,68 +1,48 @@
 return {
   'folke/which-key.nvim',
   event = 'VeryLazy',
-  lazy = false,
   config = function()
-    local border = mines.ui.current.border
+    local highlight = mines.highlight
+    local wk = require 'which-key'
 
-    mines.highlight.plugin('whichkey', {
+    highlight.plugin('whichkey', {
       theme = {
         ['*'] = { { WhichkeyFloat = { link = 'NormalFloat' } } },
       },
     })
 
-    local wk = require 'which-key'
     wk.setup {
-      plugins = {
-        marks = true,
-        registers = true,
-        spelling = { enabled = true },
-        presets = {
-          operators = false,
-          motions = true,
-          text_objects = true,
-          nav = false,
-          z = true,
-          g = false,
-          windows = false,
-        },
-      },
-      icons = { breadcrumb = '»', separator = '➜', group = '+' },
-      window = { winblend = 3, border = border },
-      show_help = false,
+      plugins = { spelling = { enabled = true } },
+      window = { border = mines.ui.current.border },
+      layout = { align = 'center' },
     }
 
     wk.register {
-      [']'] = { name = '+Next' },
-      ['['] = { name = '+Prev' },
+      [']'] = { name = '+next' },
+      ['['] = { name = '+prev' },
       g = {
-        c = { name = '+Comment' },
-        l = { name = '+Align' },
-        s = { name = '+Grep' },
+        c = { name = '+comment' },
+        b = { name = '+bufferline' },
       },
-      ['<leader>'] = {
-        a = { name = '+Projectionist' },
-        c = { name = '+Color' },
-        d = { name = '+Debug/Database', h = 'Dap Hydra' },
-        f = { name = '+Telescope' },
-        p = { name = '+Package' },
-        q = { name = '+Quit' },
-        l = { name = '+List' },
-        e = { name = '+Edit' },
-        r = { name = '+Lsp-Refactor' },
-        o = { name = '+Only / Org' },
-        t = { name = '+Tab' },
-        s = { name = '+Source/Swap' },
-        z = 'Window Scroll Hydra',
-      },
-      ['<localleader>'] = {
-        d = { name = '+Dap' },
-        g = { name = '+Git' },
-        G = 'Git hydra',
-        n = { name = '+Neogen' },
-        o = { name = '+Neorg' },
-        t = { name = '+Neotest' },
-        w = { name = '+Window' },
+  ['<leader>'] = {
+        a = { name = '+projectionist' },
+        c = { name = '+code-action' },
+        f = { name = '+picker' },
+        g = { name = '+git-action' },
+
+        n = { name = '+new' },
+        j = { name = '+jump' },
+        p = { name = '+packages' },
+        q = { name = '+quit' },
+        l = { name = '+list' },
+        i = { name = '+iswap' },
+        e = { name = '+edit' },
+        r = { name = '+lsp-refactor' },
+        o = { name = '+only' },
+        t = { name = '+tab' },
+        s = { name = '+source/swap' },
+        y = { name = '+yank' },
+        O = { name = '+options' },
       },
     }
   end,

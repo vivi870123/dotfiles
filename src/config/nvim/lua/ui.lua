@@ -3,40 +3,36 @@
 ----------------------------------------------------------------------------------------------------
 
 mines.ui.palette = {
-  white = '#EEFFFF',
-  aqua = '#8bba7f',
-  gray = '#717CB4',
-  black = '#000000',
-  red = '#F07178',
+  dark_green = '#10B981',
+  sky_blue = '#89dceb',
+  bright_blue = '#51afef',
+  pale_pink = '#b490c0',
+  mauve = '#c292a1',
+  red = '#ff6c6b',
   pale_red = '#E06C75',
   light_red = '#c43e1f',
   dark_red = '#be5046',
-  green = '#98c379',
-  dark_green = '#10B981',
-  yellow = '#FFCB6B',
+  rosewater = '#ff9898',
+  flamingo = '#fc8eac',
+  dark_orange = '#FF922B',
   bright_yellow = '#FAB005',
   light_yellow = '#e5c07b',
-  blue = '#82AAFE',
-  dark_blue = '#4e88ff',
-  bright_blue = '#51afef',
-  pale_blue = '#B0C9FF',
-  teal = '#15AABF',
-  cyan = '#89DDFF',
-  purple = '#C792EA',
-  magenta = '#c678dd',
-  orange = '#F78C6C',
-  dark_orange = '#FF922B',
   whitesmoke = '#9E9E9E',
   light_gray = '#626262',
-  off_white = '#cad8d8',
   comment_grey = '#5c6370',
   grey = '#3E4556',
-  grey1 = '#928374',
-  grey2 = '#a89984',
-  grey3 = '#b0a392',
-  blue2 = '#64af9c',
-  bg_yellow = '#e9b143',
-  bg_green = '#b0b846',
+  sapphire = '#051f42',
+  orange = '#da8548',
+  green = '#98be65',
+  teal = '#4db5bd',
+  yellow = '#ECBE7B',
+  blue = '#51afef',
+  dark_blue = '#2257A0',
+  magenta = '#c678dd',
+  violet = '#a9a1e1',
+  cyan = '#46D9FF',
+  dark_cyan = '#5699AF',
+  white = '#efefef',
 }
 
 mines.ui.border = {
@@ -47,6 +43,7 @@ mines.ui.border = {
 mines.ui.icons = {
   separators = {
     left_thin_block = '▏',
+    right_thin_block = '▕',
     left_holow_pipe = '▎',
     left_block = '▌',
     hollow_pipe = '│',
@@ -68,9 +65,9 @@ mines.ui.icons = {
   },
   lsp = {
     error = '', -- '✗'
-    warn = '',
-    info = '', -- 
-    hint = '', --  ⚑
+    warn = '', -- 
+    info = '󰋼', --  ℹ 󰙎 
+    hint = '󰌶', --  ⚑
   },
   git = {
     add = '', -- '',
@@ -78,52 +75,72 @@ mines.ui.icons = {
     remove = '', -- '',
     ignore = '',
     rename = '',
+    untracked = '',
+    ignored = '',
+    unstaged = '󰄱',
+    staged = '',
+    conflict = '',
     diff = '',
     repo = '',
-    logo = '',
+    logo = '󰊢',
     branch = '',
   },
   documents = {
     file = '',
     files = '',
     folder = '',
+    folder_alt = ' ',
     open_folder = '',
   },
   misc = {
-    plus = '',
+    beaker = ' ',
+    canceled = '󰜺 ',
     ellipsis = '…',
+    failure = ' ',
+    hack = ' ',
+    note = ' ',
+    running = '󰑮 ',
+    success = '󰄴 ',
+    perf = ' ',
+    todo = '',
+    test = '⏲ ',
+    startup = ' ',
+    plus = '',
     up = '⇡',
     down = '⇣',
-    line = 'ℓ', -- ''
+    line = '', -- 'ℓ'
     indent = 'Ξ',
     tab = '⇥',
-    bug = '', --  'ﴫ'
+    bug = '', --  '󰠭'
     question = '',
     clock = '',
-    lock = '',
-    circle = '',
+    lock = '',
+    padlock = '',
+    shaded_lock = '',
     circle_small = '●', -- ●
-    circle_plus = '', -- 
+    circle = '',
+    circle_plus = '⊕ ',
     circle_o = '⭘', -- ⭘
-    dot_circle_o = '', -- 
+    fold_close = '',
+    fold_open = '',
+    fold_separator = ' ',
     project = '',
     dashboard = '',
-    history = '',
-    comment = '',
-    robot = 'ﮧ',
-    lightbulb = '',
-    search = '', -- 
+    history = '󰄉',
+    comment = '󰅺',
+    robot = '󰚩',
+    lightbulb = '󰌵',
+    search = '󰍉',
     code = '',
     telescope = '',
     gear = '',
     package = '',
     list = '',
     sign_in = '',
-    check = '',
+    check = '󰄬',
     fire = '',
-    note = '',
     bookmark = '',
-    pencil = '', -- '',
+    pencil = '', -- '󰏫',
     tools = '',
     arrow_right = '',
     caret_right = '',
@@ -131,12 +148,10 @@ mines.ui.icons = {
     double_chevron_right = '»',
     table = '',
     calendar = '',
-    padlock = '',
+    block = '▌',
+    vim = ' ',
   },
 }
-
---- LSP Kinds come via the LSP spec
---- see: https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#symbolKind
 mines.ui.lsp = {
   colors = {
     error = mines.ui.palette.pale_red,
@@ -144,7 +159,6 @@ mines.ui.lsp = {
     hint = mines.ui.palette.bright_blue,
     info = mines.ui.palette.teal,
   },
-
   --- This is a mapping of LSP Kinds to highlight groups. LSP Kinds come via the LSP spec
   --- see: https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#symbolKind
   highlights = {
@@ -279,11 +293,11 @@ local filetypes = mines.p_table {
   ['fugitive'] = presets.statusline_only,
   ['startify'] = presets.statusline_only,
   ['man'] = presets.minimal_editing,
-  ['org'] = presets.minimal_editing,
-  ['norg'] = presets.minimal_editing,
+  ['org'] = presets.minimal_editing:with { winbar = false },
+  ['norg'] = presets.minimal_editing:with { winbar = false },
+  ['orgagenda'] = presets.minimal_editing:with { winbar = false },
   ['markdown'] = presets.minimal_editing,
   ['himalaya'] = presets.minimal_editing,
-  ['orgagenda'] = presets.minimal_editing,
   ['gitcommit'] = commit_buffer,
   ['NeogitCommitMessage'] = commit_buffer,
 }
@@ -296,7 +310,7 @@ mines.ui.decorations = {}
 
 ---@alias ui.OptionValue (boolean | string)
 
----Get the as.ui setting for a particular filetype
+---Get the mines.ui setting for a particular filetype
 ---@param opts {ft: string?, bt: string?, fname: string?, setting: DecorationType}
 ---@return {ft: ui.OptionValue?, bt: ui.OptionValue?, fname: ui.OptionValue?}
 function mines.ui.decorations.get(opts)

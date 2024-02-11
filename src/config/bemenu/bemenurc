@@ -2,7 +2,7 @@
 
 background='#1a1a1a'
 mainBlue='#268bd2'
-fontsize=16
+fontsize=14
 font="sans $fontsize"
 horispacing=14
 
@@ -15,5 +15,4 @@ export BEMENU_OPTS="-i \
   --nb $background \
   --hb $background \
   --hf $mainBlue \
-  --hp $horispacing \
-  --binding vim"
+  --hp $horispacing"

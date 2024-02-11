@@ -1,125 +1,62 @@
-# Create a hash table for globally stashing variables without polluting main
-# scope with a bunch of identifiers.
-typeset -A __DOTS
-
-__DOTS[ITALIC_ON]=$'\e[3m'
-__DOTS[ITALIC_OFF]=$'\e[23m'
-
-# ZSH only and most performant way to check existence of an executable
-# https://www.topbug.net/blog/2016/10/11/speed-test-check-the-existence-of-a-command-in-bash-and-zsh/
-exists() { (( $+commands[$1] )); }
-
-_comp_options+=(globdots) # Include hidden files.
-
-if exists brew; then
-  fpath=("$(brew --prefix)/share/zsh/site-functions" $fpath)
-fi
-
-# Enable colors and change prompt:
-autoload -U colors && colors # Load colors
-stty stop undef              # Disable ctrl-s to freeze terminal.
+### paths ###
+typeset -gU PATH path
+typeset -gU FPATH fpath
 
 #-------------------------------------------------------------------------------
-# Zim Configuration
+#       ENV VARIABLES
 #-------------------------------------------------------------------------------
-# Use degit instead of git as the default tool to install and update modules.
-zstyle ':zim:zmodule' use 'degit'
+# PATH.
+# (N-/): do not register if the directory does not exists
+# (Nn[-1]-/)
+#
+#  N   : NULL_GLOB option (ignore path if the path does not match the glob)
+#  n   : Sort the output
+#  [-1]: Select the last item in the array
+#  -   : follow the symbol links
+#  /   : ignore files
+#  t   : tail of the path
+# CREDIT: @ahmedelgabri
+path+=(
+    '/usr/local/bin'(N-/)
+    '/usr/bin'(N-/)
+    '/bin'(N-/)
+    '/usr/local/sbin'(N-/)
+    '/usr/sbin'(N-/)
+    '/sbin'(N-/)
+    "/var/lib/flatpak/exports/share"(N-/)
+)
 
+path=(
+    "$HOME/.local/bin"(N-/)
+    "$HOME/.local/bin/statusbar"(N-/)
+    "$HOME/.local/share/flatpak/exports/share"(N-/)
+    "$CARGO_HOME/bin"(N-/)
+    "$GOPATH/bin"(N-/)
+    "$DENO_INSTALL/bin"(N-/)
+    "$GEM_HOME/bin"(N-/)
+    "$GHRD_DATA_HOME/bin"(N-/)
+    # package manager for neovim
+    "$HOME/.local/share/bob/nvim-bin"(N-/)
+    "$path[@]"
+)
 
-ZIM_HOME="$HOME/.cache/zim"
-# Download zimfw plugin manager if missing.
-if [[ ! -e ${ZIM_HOME}/zimfw.zsh ]]; then
-  if (( ${+commands[curl]} )); then
-    curl -fsSL --create-dirs -o ${ZIM_HOME}/zimfw.zsh \
-        https://github.com/zimfw/zimfw/releases/latest/download/zimfw.zsh
-  else
-    mkdir -p ${ZIM_HOME} && wget -nv -O ${ZIM_HOME}/zimfw.zsh \
-        https://github.com/zimfw/zimfw/releases/latest/download/zimfw.zsh
-  fi
-fi
+fpath=(
+  "$GHRD_DATA_HOME/completions"(N-/)
+  "$XDG_DATA_HOME/zsh/completions"(N-/)
+  "$fpath[@]"
+)
 
-# Install missing modules, and update ${ZIM_HOME}/init.zsh if missing or outdated.
-if [[ ! ${ZIM_HOME}/init.zsh -nt ${ZDOTDIR:-${HOME}}/.zimrc ]]; then
-  source ${ZIM_HOME}/zimfw.zsh init -q
-fi
-
-# Initialize modules.
-source ${ZIM_HOME}/init.zsh
-
-
-#-------------------------------------------------------------------------------
-#               Completion
-#-------------------------------------------------------------------------------
-# Completion for kitty
-if [[ "$TERM" == "xterm-kitty" ]]; then
-  kitty + complete setup zsh | source /dev/stdin
-fi
-
-# Colorize completions using default `ls` colors.
-zstyle ':completion:*' list-colors ''
-
-# Enable keyboard navigation of completions in menu
-# (not just tab/shift-tab but cursor keys as well):
-zstyle ':completion:*' menu select
-zmodload zsh/complist
-
-# use the vi navigation keys in menu completion
-bindkey -M menuselect 'h' vi-backward-char
-bindkey -M menuselect 'k' vi-up-line-or-history
-bindkey -M menuselect 'l' vi-forward-char
-bindkey -M menuselect 'j' vi-down-line-or-history
-
-# persistent reshahing i.e puts new executables in the $path
-# if no command is set typing in a line will cd by default
-zstyle ':completion:*' rehash true
-
-# Allow completion of ..<Tab> to ../ and beyond.
-zstyle -e ':completion:*' special-dirs '[[ $PREFIX = (../)#(..) ]] && reply=(..)'
-
-# Added by running `compinstall`
-zstyle ':completion:*' expand suffix
-zstyle ':completion:*' file-sort modification
-zstyle ':completion:*' list-prompt %SAt %p: Hit TAB for more, or the character to insert%s
-zstyle ':completion:*' list-suffixes true
-# End of lines added by compinstall
-
-# Make completion:
-# (stolen from Wincent)
-# - Try exact (case-sensitive) match first.
-# - Then fall back to case-insensitive.
-# - Accept abbreviations after . or _ or - (ie. f.b -> foo.bar).
-# - Substring complete (ie. bar -> foobar).
-zstyle ':completion:*' matcher-list '' \
-  '+m:{[:lower:]}={[:upper:]}' \
-  '+m:{[:upper:]}={[:lower:]}' \
-  '+m:{_-}={-_}' \
-  'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
-
-zstyle ':completion:*' use-cache on
-zstyle ':completion:*' cache-path "$ZSH_CACHE_DIR/zcompcache"
-
-
-#-------------------------------------------------------------------------------
-#  CDR
-#-------------------------------------------------------------------------------
-# https://github.com/zsh-users/zsh/blob/master/Functions/Chpwd/cdr
-
-zstyle ':completion:*:*:cdr:*:*' menu selection
-# $WINDOWID is an environment variable set by kitty representing the window ID
-# of the OS window (NOTE this is not the same as the $KITTY_WINDOW_ID)
-# @see: https://github.com/kovidgoyal/kitty/pull/2877
-zstyle ':chpwd:*' recent-dirs-file $ZSH_CACHE_DIR/.chpwd-recent-dirs-${WINDOWID##*/} +
-zstyle ':completion:*' recent-dirs-insert always
-zstyle ':chpwd:*' recent-dirs-default yes
-
-
-#-------------------------------------------------------------------------------
-# Options
-#-------------------------------------------------------------------------------
+### Options ###
 setopt AUTO_CD
 setopt RM_STAR_WAIT
 setopt CORRECT                  # command auto-correction
 setopt COMPLETE_ALIASES
+
+### history ###
+HISTFILE="$XDG_STATE_HOME/zsh_history"
+# HISTFILE="${XDG_CACHE_HOME:-$HOME/.cache}/zsh/history"
+export HISTSIZE=120000
+export SAVEHIST=100000
 
 # set some history options
 setopt APPEND_HISTORY
@@ -138,10 +75,96 @@ setopt PUSHD_IGNORE_DUPS         # Do not store duplicates in the stack.
 setopt PUSHD_SILENT              # Do not print the directory stack after pushd or popd.
 
 
-# Keep a ton of history.
-HISTSIZE=100000
-SAVEHIST=100000
-HISTFILE="${XDG_CACHE_HOME:-$HOME/.cache}/zsh/history"
+#-------------------------------------------------------------------------------
+# source
+#-------------------------------------------------------------------------------
+source() {
+    local input="$1"
+    local cache="$input.zwc"
+    if [[ ! -f "$cache" || "$input" -nt "$cache" ]]; then
+        zcompile "$input"
+    fi
+    \builtin source "$@"
+}
+
+#-------------------------------------------------------------------------------
+# hooks
+#-------------------------------------------------------------------------------
+zshaddhistory() {
+    local line="${1%%$'\n'}"
+    [[ ! "$line" =~ "^(cd|history|j|lazygit|la|ll|ls|rm|rmdir|trash)($| )" ]]
+}
+
+
+#-------------------------------------------------------------------------------
+# key bindings
+#-------------------------------------------------------------------------------
+widget::history() {
+    local selected="$(history -inr 1 | fzf --exit-0 --query "$LBUFFER" | cut -d' ' -f4- | sed 's/\\n/\n/g')"
+    if [[ -n "$selected" ]]; then
+        BUFFER="$selected"
+        CURSOR=$#BUFFER
+    fi
+    zle -R -c # refresh screen
+}
+
+widget::ghq::source() {
+    local session color icon green="\e[32m" blue="\e[34m" reset="\e[m" checked="\U000f0132" unchecked="\U000f0131"
+    local sessions=($(tmux list-sessions -F "#S" 2>/dev/null))
+
+    ghq list | sort | while read -r repo; do
+        session="${repo//[:. ]/-}"
+        color="$blue"
+        icon="$unchecked"
+        if (( ${+sessions[(r)$session]} )); then
+            color="$green"
+            icon="$checked"
+        fi
+        printf "$color$icon %s$reset\n" "$repo"
+    done
+}
+widget::ghq::select() {
+    local root="$(ghq root)"
+    widget::ghq::source | fzf --exit-0 --preview="fzf-preview-git ${(q)root}/{+2}" --preview-window="right:60%" | cut -d' ' -f2-
+}
+widget::ghq::dir() {
+    local selected="$(widget::ghq::select)"
+    if [[ -z "$selected" ]]; then
+        return
+    fi
+
+    local repo_dir="$(ghq list --exact --full-path "$selected")"
+    BUFFER="cd ${(q)repo_dir}"
+    zle accept-line
+    zle -R -c # refresh screen
+}
+widget::ghq::session() {
+    local selected="$(widget::ghq::select)"
+    if [[ -z "$selected" ]]; then
+        return
+    fi
+
+    local repo_dir="$(ghq list --exact --full-path "$selected")"
+    local session_name="${selected//[:. ]/-}"
+
+    if [[ -z "$TMUX" ]]; then
+        BUFFER="tmux new-session -A -s ${(q)session_name} -c ${(q)repo_dir}"
+        zle accept-line
+    elif [[ "$(tmux display-message -p "#S")" != "$session_name" ]]; then
+        tmux new-session -d -s "$session_name" -c "$repo_dir" 2>/dev/null
+        tmux switch-client -t "$session_name"
+    else
+        BUFFER="cd ${(q)repo_dir}"
+        zle accept-line
+    fi
+    zle -R -c # refresh screen
+}
+
+zle -N widget::history
+zle -N widget::ghq::dir
+zle -N widget::ghq::session
+zle -N forward-kill-word
+
 
 #-------------------------------------------------------------------------------
 #               VI-MODE
@@ -150,121 +173,37 @@ HISTFILE="${XDG_CACHE_HOME:-$HOME/.cache}/zsh/history"
 bindkey -v # enables vi mode, using -e = emacs
 export KEYTIMEOUT=1
 
-# Add vi-mode text objects e.g. da" ca(
-autoload -Uz select-bracketed select-quoted
-zle -N select-quoted
-zle -N select-bracketed
-for km in viopp visual; do
-	bindkey -M $km -- '-' vi-up-line-or-history
-	for c in {a,i}${(s..)^:-\'\"\`\|,./:;=+@}; do
-		bindkey -M $km $c select-quoted
-	done
-	for c in {a,i}${(s..)^:-'()[]{}<>bB'}; do
-		bindkey -M $km $c select-bracketed
-	done
-done
+bindkey "^R"        widget::history                 # C-r
+bindkey "^G"        widget::ghq::session            # C-g
+bindkey "^[g"       widget::ghq::dir                # Alt-g
+bindkey "^A"        beginning-of-line               # C-a
+bindkey "^E"        end-of-line                     # C-e
+bindkey "^K"        kill-line                       # C-k
+bindkey "^Q"        push-line-or-edit               # C-q
+bindkey "^W"        vi-backward-kill-word           # C-w
+bindkey "^?"        backward-delete-char            # backspace
+bindkey "^[[3~"     delete-char                     # delete
+bindkey -M vicmd "^A" beginning-of-line             # vi: C-a
+bindkey -M vicmd "^E" end-of-line                   # vi: C-e
 
-# Mimic tpope's vim-surround
-autoload -Uz surround
-zle -N delete-surround surround
-zle -N add-surround surround
-zle -N change-surround surround
-bindkey -M vicmd cs change-surround
-bindkey -M vicmd ds delete-surround
-bindkey -M vicmd ys add-surround
-bindkey -M visual S add-surround
-
-# https://superuser.com/questions/151803/how-do-i-customize-zshs-vim-mode
-# http://pawelgoscicki.com/archives/2012/09/vi-mode-indicator-in-zsh-prompt/
-vim_insert_mode=""
-vim_normal_mode="%F{green} %f"
-vim_mode=$vim_insert_mode
-
-function zle-line-finish {
-vim_mode=$vim_insert_mode
-}
-zle -N zle-line-finish
-
-# When you C-c in CMD mode and you'd be prompted with CMD mode indicator,
-# while in fact you would be in INS mode Fixed by catching SIGINT (C-c),
-# set vim_mode to INS and then repropagate the SIGINT,
-# so if anything else depends on it, we will not break it
-function TRAPINT() {
-	vim_mode=$vim_insert_mode
-	return $(( 128 + $1 ))
-}
-
-
-#-------------------------------------------------------------------------------
-#   LOCAL SCRIPTS
-#-------------------------------------------------------------------------------
-# source all zsh and sh files
-for script in $ZDOTDIR/scripts/*; do
-	source $script
-done
-
-# Load aliases and shortcuts if existent.
-[ -f "${XDG_CONFIG_HOME:-$HOME/.config}/shell/shortcutrc" ] && source "${XDG_CONFIG_HOME:-$HOME/.config}/shell/shortcutrc"
-[ -f "${XDG_CONFIG_HOME:-$HOME/.config}/shell/aliasrc" ] && source "${XDG_CONFIG_HOME:-$HOME/.config}/shell/aliasrc"
-[ -f "${XDG_CONFIG_HOME:-$HOME/.config}/shell/zshnameddirrc" ] && source "${XDG_CONFIG_HOME:-$HOME/.config}/shell/zshnameddirrc"
-
-# Basic auto/tab complete:
-
-#-------------------------------------------------------------------------------
-#  PLUGINS
-#-------------------------------------------------------------------------------
-ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=241'
-ZSH_AUTOSUGGEST_USE_ASYNC=1
-
-
-# FZF mappings and options
-[ -f /usr/share/fzf/shell/key-bindings.zsh ] && source /usr/share/fzf/shell/key-bindings.zsh
-
-if exists thefuck; then
-	eval $(thefuck --alias)
-fi
-
-if exists zoxide; then
-	eval "$(zoxide init zsh)"
-fi
-
-if [[ ! "$(exists nvr)" && "$(exists pip3)" ]]; then
-	pip3 install neovim-remote
-fi
-
-if exists fnm; then
-	eval "$(fnm env --use-on-cd)"
-fi
-
-# source cargo
-[ -f "$CARGO_HOME/env" ] && . "$CARGO_HOME/env"
-
-
-# eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-#. $XDG_DATA_HOME/asdf/asdf.sh
-
-#-------------------------------------------------------------------------------
-#               Mappings
-#-------------------------------------------------------------------------------
-echo -ne '\e[5 q' # Use beam shape cursor on startup.
-preexec() { echo -ne '\e[5 q' ;} # Use beam shape cursor for each new prompt.
-
-bindkey '^U' autosuggest-accept
-bindkey '^P' up-history
-bindkey '^N' down-history
-
-# Use lf to switch directories and bind it to ctrl-o
-lfcd () {
-    tmp="$(mktemp -uq)"
-    trap 'rm -f $tmp >/dev/null 2>&1 && trap - HUP INT QUIT TERM PWR EXIT' HUP INT QUIT TERM PWR EXIT
-    lf -last-dir-path="$tmp" "$@"
-    if [ -f "$tmp" ]; then
-        dir="$(cat "$tmp")"
-        [ -d "$dir" ] && [ "$dir" != "$(pwd)" ] && cd "$dir"
+# sheldon
+sheldon::load() {
+    local profile="$1"
+    local plugins_file="$SHELDON_CONFIG_DIR/plugins.toml"
+    local cache_file="$XDG_CACHE_HOME/sheldon/$profile.zsh"
+    if [[ ! -f "$cache_file" || "$plugins_file" -nt "$cache_file" ]]; then
+        mkdir -p "$XDG_CACHE_HOME/sheldon"
+        sheldon --profile="$profile" source >"$cache_file"
+        zcompile "$cache_file"
     fi
+    \builtin source "$cache_file"
 }
-bindkey -s '^o' '^ulfcd\n'
 
-alias nvim="~/.local/share/bob/nvim-bin/nvim"
+sheldon::update() {
+    sheldon --profile="eager" lock --update
+    sheldon --profile="lazy" lock --update
+}
 
-export N_PREFIX="$HOME/.local/share/n"; [[ :$PATH: == *":$N_PREFIX/bin:"* ]] || PATH+=":$N_PREFIX/bin"  # Added by n-install (see http://git.io/n-install-repo).
+
+### SHELDON ###
+sheldon::load eager

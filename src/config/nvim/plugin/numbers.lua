@@ -1,10 +1,14 @@
+if not mines then return end
+
+local ui = mines.ui
+local command = mines.command
+local augroup = mines.augroup
+
 -- Inspiration
 -- 1. vim-relativity
 -- 2. numbers.vim - https://github.com/myusuf3/numbers.vim/blob/master/plugin/numbers.vim
 
 local api, fn = vim.api, vim.fn
-local ui = mines.ui
-
 local M = {}
 
 local function is_floating_win() return fn.win_gettype() == 'popup' end
@@ -37,7 +41,7 @@ local function disable_relative_number()
   vim.wo.number, vim.wo.relativenumber = not is_blocked(), false
 end
 
-mines.command('ToggleRelativeNumber', function()
+command('ToggleRelativeNumber', function()
   is_enabled = not is_enabled
   if is_enabled then
     enable_relative_number()
@@ -46,7 +50,7 @@ mines.command('ToggleRelativeNumber', function()
   end
 end)
 
-mines.augroup('ToggleRelativeLineNumbers', {
+augroup('ToggleRelativeLineNumbers', {
   event = { 'BufEnter', 'FileType', 'FocusGained', 'InsertLeave' },
   command = enable_relative_number,
 }, {

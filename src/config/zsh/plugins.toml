@@ -1,0 +1,87 @@
+shell = "zsh"
+
+apply = ["defer"]
+
+[templates]
+defer  = "{{ hooks | get: \"pre\" | nl }}{% for file in files %}zsh-defer -a -t0.01 source \"{{ file }}\"\n{% endfor %}{{ hooks | get: \"post\" | nl }}"
+defer0 = "{{ hooks | get: \"pre\" | nl }}{% for file in files %}zsh-defer -a source \"{{ file }}\"\n{% endfor %}{{ hooks | get: \"post\" | nl }}"
+
+[plugins]
+
+####################
+# eager
+####################
+
+[plugins.zsh-defer]
+github = "romkatv/zsh-defer"
+apply = ["source"]
+profiles = ["eager"]
+
+[plugins.lazy]
+local = "~/.config/zsh"
+use = ["lazy.zsh"]
+profiles = ["eager"]
+
+[plugins.shortcutrc]
+local = "~/.config/shell"
+use = ["shortcutrc"]
+profiles = ["eager"]
+
+[plugins.zshnameddirrc]
+local = "~/.config/shell"
+use = ["zshnameddirrc"]
+apply = ["source"]
+
+
+####################
+# lazy
+####################
+
+[plugins.zsh-completions]
+github = "zsh-users/zsh-completions"
+dir = "src"
+apply = ["fpath"]
+profiles = ["lazy"]
+
+[plugins.zsh-autosuggestions]
+github = "zsh-users/zsh-autosuggestions"
+hooks.post = """
+export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=241'
+export ZSH_AUTOSUGGEST_USE_ASYNC=1
+bindkey '^U' autosuggest-accept
+"""
+profiles = ["lazy"]
+
+[plugins.zsh-history-substring-search]
+github = "zsh-users/zsh-history-substring-search"
+hooks.post = """
+bindkey "${terminfo[kcuu1]}" history-substring-search-up   # arrow-up
+bindkey "${terminfo[kcud1]}" history-substring-search-down # arrow-down
+bindkey "^[[A" history-substring-search-up   # arrow-up
+bindkey "^[[B" history-substring-search-down # arrow-down
+"""
+profiles = ["lazy"]
+
+[plugins.fast-syntax-highlighting]
+github = "zdharma-continuum/fast-syntax-highlighting"
+profiles = ["lazy"]
+
+[plugins.zsh-autopair]
+github = "hlissner/zsh-autopair"
+profiles = ["lazy"]
+
+# local
+[plugins.compinit]
+inline = """
+autoload -Uz compinit
+zsh-defer -a -t0.01 compinit -d "$XDG_STATE_HOME/zcompdump"
+"""
+profiles = ["lazy"]
+
+
+####################
+# others
+####################
+
+[plugins.starship]
+inline = 'eval "$(starship init zsh)"'

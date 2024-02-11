@@ -1,4 +1,7 @@
+if not mines then return end
+
 local opt, fn = vim.opt_local, vim.fn
+
 opt.spell = true
 
 map('n', '<leader>so', function()

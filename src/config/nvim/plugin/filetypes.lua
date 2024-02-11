@@ -1,12 +1,11 @@
 if not mines then return end
+
 local settings, highlight = mines.filetype_settings, mines.highlight
 local cmd, fn = vim.cmd, vim.fn
 
-vim.treesitter.language.register('bash', 'sh')
-vim.treesitter.language.register('markdown', 'chatgpt')
 vim.treesitter.language.register('gitcommit', 'NeogitCommitMessage')
 
-settings({
+settings {
   checkhealth = {
     opt = { spell = false },
   },
@@ -18,13 +17,6 @@ settings({
     },
     function() mines.adjust_split_height(12, math.floor(vim.o.lines * 0.3)) end,
   },
-  fzf = {
-    function(args)
-      -- remove the default terminal mappings
-      vim.keymap.del('t', '<esc>', { buffer = args.buf })
-      vim.keymap.del('t', 'jk', { buffer = args.buf })
-    end,
-  },
   [{ 'gitcommit', 'gitrebase' }] = {
     bo = { bufhidden = 'delete' },
     opt = {
@@ -32,6 +24,9 @@ settings({
       spell = true,
       spelllang = 'en_gb',
     },
+  },
+  ['Neogit*'] = {
+    wo = { winbar = '' },
   },
   NeogitCommitMessage = {
     opt = {
@@ -90,11 +85,11 @@ settings({
         })
       end,
       ['nvim-surround'] = function(surround)
-        surround.buffer_setup({
+        surround.buffer_setup {
           surrounds = {
-            l = { add = function() return { { '[' }, { ']{' .. vim.fn.getreg('*') .. '}' } } end },
+            l = { add = function() return { { '[' }, { ']{' .. vim.fn.getreg '*' .. '}' } } end },
           },
-        })
+        }
       end,
     },
   },
@@ -117,13 +112,13 @@ settings({
         })
       end,
       ['nvim-surround'] = function(surround)
-        surround.buffer_setup({
+        surround.buffer_setup {
           surrounds = {
             l = {
-              add = function() return { { ('[[%s]['):format(fn.getreg('*')) }, { ']]' } } end,
+              add = function() return { { ('[[%s]['):format(fn.getreg '*') }, { ']]' } } end,
             },
           },
-        })
+        }
       end,
     },
   },
@@ -132,7 +127,7 @@ settings({
     opt = { spell = true },
   },
   startuptime = {
-    function() cmd.wincmd('H') end, -- open startup time to the left
+    function() cmd.wincmd 'L' end, -- open startup time to the right
   },
   [{ 'typescript', 'typescriptreact' }] = {
     bo = { textwidth = 100 },
@@ -142,4 +137,4 @@ settings({
     },
   },
   [{ 'lua', 'python', 'rust' }] = { opt = { spell = true } },
-})
+}

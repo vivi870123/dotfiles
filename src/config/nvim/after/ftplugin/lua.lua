@@ -1,7 +1,6 @@
 if not mines then return end
 
 local fn, opt = vim.fn, vim.opt_local
-local fmt = string.format
 
 opt.textwidth = 100
 opt.formatoptions:remove 'o'
@@ -13,7 +12,7 @@ local function find(word, ...)
   end
 end
 
-local function open_help(tag) mines.wrap_err(vim.cmd.help, tag) end
+local function open_help(tag) mines.pcall(vim.cmd.help, tag) end
 
 --- Stolen from nlua.nvim this function attempts to open
 --- vim help docs if an api or vim.fn function otherwise it
@@ -47,4 +46,3 @@ map('n', '<leader>so', function()
   vim.cmd.luafile '%'
   vim.notify('Sourced ' .. fn.expand '%')
 end)
-
