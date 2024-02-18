@@ -16,13 +16,13 @@
 # . "$HOME/.dotfiles/scripts/system/arch/packages.sh"
 
 if cmd_exists "git"; then
-  if [ "$(git config --get remote.origin.url)" != "$DOTFILES_ORIGIN" ]; then
-    . "$HOME/.dotfiles/scripts/system/git-initialize-repository.sh" "$DOTFILES_ORIGIN"
-  fi
+	if [ "$(git config --get remote.origin.url)" != "$DOTFILES_ORIGIN" ]; then
+		. "$HOME/.dotfiles/scripts/system/git-initialize-repository.sh" "$DOTFILES_ORIGIN"
+	fi
 
-  if ! $skipQuestions; then
-    . "$HOME/.dotfiles/scripts/system/git-update-content.sh"
-  fi
+	if ! "$skipQuestions"; then
+		. "$HOME/.dotfiles/scripts/system/git-update-content.sh"
+	fi
 fi
 
 # if ! $skipQuestions; then

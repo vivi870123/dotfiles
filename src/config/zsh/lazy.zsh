@@ -388,7 +388,6 @@ export ANDROID_SDK_HOME="$XDG_CONFIG_HOME/android"
 
 ### Editor ###
 export EDITOR="vi"
-export VISUAL="nvim --cmd 'let g:flatten_wait=1'"
 (( ${+commands[vim]} )) && EDITOR="vim"
 (( ${+commands[nvim]} )) && EDITOR="nvim"
 

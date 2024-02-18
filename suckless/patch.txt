@@ -1,0 +1,14 @@
+-- autostart.patch
+-- attach_bottom.patch
+-- alwayscenter.patch
+-- hide-behind-fullscreen.patch
+-- vanitygaps
+hide-behind-monade.patch
+
+-- ipc.patch
+keycodes.patch
+-- bottomstack.patch
+-- shiftview.patch
+-- simple_borders.patch
+-- swallow.patch
+-- pertag

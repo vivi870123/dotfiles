@@ -37,9 +37,20 @@ rust_development() {
   install_rust_toolchain "stable"
 }
 
+# w3m: for html files
+
 install_pacman_packages() {
   print_title "Installing pacman packages"
+
   pacman_install "polkit" "polkit: Manages user policies."
+  pacman_install "elinks" "Advanced feature-rich text-mode web browser"
+  pacman_install "w3m" "Text-based Web browser as well as pager"
+  pacman_install "highlight" "Fast and flexible source code highlighter (CLI version)"
+  pacman_install "perl-image-exiftool" "Reader and rewriter of EXIF information that supports raw files"
+  pacman_install "imagemagick" "An image viewing/manipulation program."
+  pacman_install "glow" "glow: Command-line markdown renderer"
+  pacman_install "fontforge" "Full-featured outline and bitmap font editor."
+  pacman_install "diff-so-fancy", "diff-so-fancy: Good-looking diffs with diff-highlight and more."
   pacman_install "gnome-keyring" "gnome-keyring: Serves as the system keyring."
   pacman_install "bc" "bc: Mathematics language used for the dropdown calculator."
   pacman_install "calcurse" "calcurse: Terminal-based organizer"
@@ -47,6 +58,7 @@ install_pacman_packages() {
   pacman_install "dosfstools" "dosfstools: Allows your computer to access dos-like filesystems."
   pacman_install "exfat-utils" "exfat-utils: Allows management of FAT drives."
   pacman_install "atool" "atool: Manages and gives information about archives."
+  pacman_install "chafa" "chafa:  Image-to-text converter supporting a wide range of symbols and palettes, transparency, animations, etc."
   pacman_install "unzip" "unzip: Unzips zips."
   pacman_install "ntfs-3g" "ntfs-3g: Allows accessing NTFS partitions."
   pacman_install "man-db" "man-db: Lets you read man pages of programs."
@@ -56,7 +68,6 @@ install_pacman_packages() {
   pacman_install "mpc" "mpc: Is a terminal interface for mpd."
   pacman_install "mpv" "mpv: Is the patrician's choice video player."
   pacman_install "ncmpcpp" "ncmpcpp: TUI for music with multiple formats"
-  pacman_install "mediainfo" "mediainfo: Shows audio and video information"
   pacman_install "newsboat" "newsboat: TUI RSS client."
   pacman_install "lynx" "lynx: TUI browser"
   pacman_install "yt-dlp" "yt-dlp: Can download any YouTube video (or playlist or channel)"
@@ -70,7 +81,7 @@ install_pacman_packages() {
   pacman_install "pulsemixer" "pulsemixer: Audio controller"
   pacman_install "imv" "imv: Minimalist image viewer."
   pacman_install "kitty" "kitty: A modern, hackable, featureful, OpenGL-based terminal emulator"
-  pacman_install "dunst" "dunst: Suckless notification system."
+  pacman_install "mako" "mako: Suckless notification system."
   pacman_install "pass" "pass: Stores, retrieves, generates, and synchronizes passwords securely"
   pacman_install "curl" "curl: command line tool and library for transferring data with URLs"
   pacman_install "wget" "wget: Network utility to retrieve files from the Web"
@@ -106,9 +117,8 @@ install_aur_packages() {
   print_title "Installing aur packages"
   aur_install "lf-git" "lf-git: Extensive TUI file manager that everyone likes."
   aur_install "librewolf-bin" "librewolf-bin: Community fork or firefox which also comes with ad-blocking and other sensible and necessary features by default."
-  aur_install "arkenfox-user.js" "arkenfox-user.js: provides hardened security settings for Firefox and Librewolf to avoid Mozilla spyware and general web fingerprinting."
+  # aur_install "arkenfox-user.js" "arkenfox-user.js: provides hardened security settings for Firefox and Librewolf to avoid Mozilla spyware and general web fingerprinting."
   aur_install "sc-im" "sc-im: Excel-like terminal spreadsheet manager."
-  aur_install "abook" "abook: offline addressbook usable by neomutt."
   aur_install "task-spooler" "task-spooler: queues commands or files for download."
   aur_install "simple-mtpfs" "simple-mtpfs: enables the mounting of cell phones."
   aur_install "htop-vim" "htop-vim: graphical and colorful system monitor."
@@ -119,7 +129,7 @@ install_aur_packages() {
   aur_install "clipman" "clipman: clipboard manager for Wayland"
   aur_install "wl-color-picker" "wl-color-picker: A wayland color picker that also works on wlroots"
   aur_install "wlr-randr" "wlr-randr: Utility to manage outputs of a Wayland compositor"
-  aur_install "mmv" "mmv: multiple move files"
+  # aur_install "mmv" "mmv: multiple move files"
   aur_install "ghq" "ghq: Remote repository management made easy"
 
 
@@ -133,7 +143,7 @@ install_aur_packages() {
 install_git_packages() {
   print_title "Installing build Packages"
 
-  for x in dwl dwlb somebar someblocks; do
+  for x in dwl dwlb someblocks; do
     local directory="$HOME/.local/src/$x"
     [ -d "$directory" ] && rm -rf "$directory"
 
@@ -168,11 +178,9 @@ pacman_synchronize
  install_cargo_package "ripgrep"
  install_cargo_package "zoxide"
  install_cargo_package "eza"
- install_cargo_package "hgrep"
  install_cargo_package "navi"
  install_cargo_package "tealdeer"
  install_cargo_package "bat"
- install_cargo_package "fd-find"
  install_cargo_package "topgrade"
  install_cargo_package "tokei"
  install_cargo_package "gitui"
@@ -181,5 +189,3 @@ pacman_synchronize
  install_cargo_package "sheldon"
  install_cargo_package "bob-nvim"
  install_cargo_package "ttyper"
-
-

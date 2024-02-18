@@ -10,6 +10,7 @@ set shell sh
 # times.
 set shellopts '-eu'
 
+
 # set internal field separator (IFS) to "\n" for shell commands
 # This is useful to automatically split file names in $fs and $fx properly
 # since default file separator used in these variables (i.e. 'filesep' option)
@@ -152,7 +153,7 @@ map V push :!nvim<space>
 map Y $printf "%s" "$fx" | xclip -selection clipboard
 
 set previewer ~/.config/lf/preview
-set cleaner ~/.config/lf/cleaner
+
 
 # Source Bookmarks
 source "~/.config/lf/shortcutrc"

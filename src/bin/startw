@@ -1,0 +1,44 @@
+#!/bin/env bash
+# shellcheck disable=2034
+# dbus-update-activation-environment --all >/dev/null 2>&1
+
+#        /* https://codeberg.org/dnkl/fnott */
+# /* "sh", "-c", "ulimit -c unlimited; fnott", NULL, */
+wbg /home/chris/.local/share/bg <&- &
+
+
+MPDRIS_PID=$(pgrep -f mpDris2)
+PIPEWIRE_PID=$(pgrep -f pipewire)
+pipewire <&- &
+# pipewire &
+
+wl-paste --watch clipman store &
+# # mpDris2
+# # kill -9 "$MPDRIS_PID"
+# # mpDris2 &
+
+mpd &
+
+mako &
+
+gammastep &
+
+dwlb -ipc <&- &
+
+# someblocks -p &
+someblocks -p | dwlb -status-stdin all &
+
+foot --log-level=none --server <&- &
+# simulate a do-while
+# do=true
+# while $do || [ -f /tmp/restart_dwl ]; do
+#   do=false
+#   rm -rf /tmp/restart_dwl >/dev/null 2>&1
+#   # dwl -s somebar >~/.config/dwl/run/log.txt
+# somebar >~/.config/dwl/run/log.txt 2>&1
+# someblocks -m - <&- &
+#   # dwl -s dwlb >~/.config/dwl/run/log.txt 2>&1
+#   [ -f /tmp/restart_dwl ] && echo Restarting dwl...
+# done
+dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
+systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP

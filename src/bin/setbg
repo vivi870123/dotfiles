@@ -5,7 +5,7 @@
 
 # Global variables
 PATH_WALLPAPER="$(readlink -f $1)"
-SYMLINK_WALLPAPER=""$HOME"/.wall"
+SYMLINK_WALLPAPER=""$HOME/.local/share/bg""
 
 # Main
 # Control if argument is empty or file not exist

@@ -2,7 +2,7 @@
 
 background='#1a1a1a'
 mainBlue='#268bd2'
-fontsize=14
+fontsize=16
 font="sans $fontsize"
 horispacing=14
 

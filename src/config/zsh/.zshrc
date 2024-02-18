@@ -183,6 +183,10 @@ bindkey "^Q"        push-line-or-edit               # C-q
 bindkey "^W"        vi-backward-kill-word           # C-w
 bindkey "^?"        backward-delete-char            # backspace
 bindkey "^[[3~"     delete-char                     # delete
+bindkey "^[[1;3D"   backward-word                   # Alt + arrow-left
+bindkey "^[[1;3C"   forward-word                    # Alt + arrow-right
+bindkey "^[^?"      vi-backward-kill-word           # Alt + backspace
+bindkey "^[[1;33~"  kill-word                       # Alt + delete
 bindkey -M vicmd "^A" beginning-of-line             # vi: C-a
 bindkey -M vicmd "^E" end-of-line                   # vi: C-e
 
@@ -202,8 +206,7 @@ sheldon::load() {
 sheldon::update() {
     sheldon --profile="eager" lock --update
     sheldon --profile="lazy" lock --update
+    sheldon --profile="update" --quiet source | zsh
 }
 
-
-### SHELDON ###
 sheldon::load eager

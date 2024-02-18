@@ -3,10 +3,18 @@ shell = "zsh"
 apply = ["defer"]
 
 [templates]
-defer  = "{{ hooks | get: \"pre\" | nl }}{% for file in files %}zsh-defer -a -t0.01 source \"{{ file }}\"\n{% endfor %}{{ hooks | get: \"post\" | nl }}"
-defer0 = "{{ hooks | get: \"pre\" | nl }}{% for file in files %}zsh-defer -a source \"{{ file }}\"\n{% endfor %}{{ hooks | get: \"post\" | nl }}"
-
-[plugins]
+defer = """
+__sheldon::{{ name }}() {
+{{ hooks?.pre | nl }}{% for file in files %}source \"{{ file }}\"\n{% endfor %}{{ hooks?.post | nl }}
+}
+zsh-defer -a -t0.01 __sheldon::{{ name }}
+"""
+defer0 = """
+__sheldon::{{ name }}() {
+{{ hooks?.pre | nl }}{% for file in files %}source \"{{ file }}\"\n{% endfor %}{{ hooks?.post | nl }}
+}
+zsh-defer -a __sheldon::{{ name }}
+"""
 
 ####################
 # eager
@@ -48,7 +56,7 @@ github = "zsh-users/zsh-autosuggestions"
 hooks.post = """
 export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=241'
 export ZSH_AUTOSUGGEST_USE_ASYNC=1
-bindkey '^U' autosuggest-accept
+bindkey '^Y' autosuggest-accept
 """
 profiles = ["lazy"]
 
@@ -66,9 +74,16 @@ profiles = ["lazy"]
 github = "zdharma-continuum/fast-syntax-highlighting"
 profiles = ["lazy"]
 
+[plugins.bob-update]
+inline = """
+bob update --all
+"""
+profiles = ["update"]
+
 [plugins.zsh-autopair]
 github = "hlissner/zsh-autopair"
 profiles = ["lazy"]
+
 
 # local
 [plugins.compinit]
