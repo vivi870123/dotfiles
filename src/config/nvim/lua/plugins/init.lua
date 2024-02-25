@@ -5,7 +5,11 @@ return {
   -----------------------------------------------------------------------------//
   -- Core
   -----------------------------------------------------------------------------//
-  { -- willothy/flatten.nvim
+  {
+    'MunifTanjim/nui.nvim',
+    lazy = false,
+  }, -- nui.nvim
+  {
     'willothy/flatten.nvim',
     lazy = false,
     priority = 1001,
@@ -22,12 +26,8 @@ return {
         end,
       },
     },
-  },
-  { -- nui.nvim
-    'MunifTanjim/nui.nvim',
-    lazy = false,
-  },
-  { -- nvim-web-devicons
+  }, -- willothy/flatten.nvim
+  {
     'nvim-tree/nvim-web-devicons',
     lazy = false,
     dependencies = { 'DaikyXendo/nvim-material-icon' },
@@ -36,81 +36,14 @@ return {
         override = require('nvim-material-icon').get_icons(),
       }
     end,
-  },
-  { -- persisted.nvim
-    'olimorris/persisted.nvim',
-    lazy = false,
-    init = function()
-      command('ListSessions', 'Telescope persisted')
-      augroup('PersistedEvents', {
-        event = 'User',
-        pattern = 'PersistedTelescopeLoadPre',
-        command = function()
-          vim.schedule(function() vim.cmd '%bd' end)
-        end,
-      }, {
-        event = 'User',
-        pattern = 'PersistedSavePre',
-        -- Arguments are always persisted in a session and can't be removed using 'sessionoptions'
-        -- so remove them when saving a session
-        command = function() vim.cmd '%argdelete' end,
-      })
-    end,
-    opts = {
-      autoload = true,
-      use_git_branch = true,
-      allowed_dirs = {
-        sys.dotfiles,
-        sys.work,
-        sys.projects .. '/personal',
-      },
-      ignored_dirs = {
-        sys.data,
-      },
-    },
-  },
+  }, -- nvim-web-devicons,
 
-  -----------------------------------------------------------------------------//
-  -- UI
-  -----------------------------------------------------------------------------//
-  { -- nvim-hlslens
-    'kevinhwang91/nvim-hlslens',
-    dependencies = { 'haya14busa/vim-asterisk' },
-    event = 'VeryLazy',
-    keys = function()
-      local function nN(char)
-        local ok, winid = require('hlslens').nNPeekWithUFO(char)
-        if ok and winid then
-          -- Safe to override buffer scope keymaps remapped by ufo,
-          -- ufo will restore previous buffer keymaps before closing preview window
-          -- Type <CR> will switch to preview window and fire `trace` action
-          map('n', '<CR>', function()
-            local keyCodes = api.nvim_replace_termcodes('<Tab><CR>', true, false, true)
-            api.nvim_feedkeys(keyCodes, 'im', false)
-          end, { buffer = true })
-        end
-      end
-      return {
-        { 'n', function() nN 'n' end, mode = { 'n', 'x' } },
-        { 'N', function() nN 'N' end, mode = { 'n', 'x' } },
-        { '*', [[<Plug>(asterisk-z*)<cmd>lua require('hlslens').start()<cr>]] },
-        { '#', [[<Plug>(asterisk-z#)<cmd>lua require('hlslens').start()<CR>nzv]] },
-        { 'g*', [[<Plug>(asterisk-gz*)<cmd>lua require('hlslens').start()<CR>nzv]] },
-        { 'g#', [[<Plug>(asterisk-gz#)<cmd>lua require('hlslens').start()<CR>nzv]] },
-      }
-    end,
-    opts = {
-      nearest_only = true,
-      calm_down = true,
-    },
-  },
 
   -----------------------------------------------------------------------------//
   -- Quickfix
   -----------------------------------------------------------------------------//
-  { -- nvim-bqf
+  {
     'kevinhwang91/nvim-bqf',
-    ft = 'qf',
     opts = {
       auto_resize_height = true,
       func_map = {
@@ -131,7 +64,7 @@ return {
         nexthist = '<Tab>',
       },
       preview = {
-        auto_preview = true,
+        auto_preview = false,
         should_preview_cb = function(bufnr)
           -- file size greater than 100kb can't be previewed automatically
           local filename = vim.api.nvim_buf_get_name(bufnr)
@@ -145,46 +78,35 @@ return {
       mines.highlight.plugin('bqf', { { BqfPreviewBorder = { fg = { from = 'Comment' } } } })
       require('bqf').setup(opts)
     end,
-  },
-  { -- nivim-pqf
+  }, -- nvim-bqf
+  {
     url = 'https://gitlab.com/yorickpeterse/nvim-pqf',
-    config = function()
-      mines.highlight.plugin('pqf', {
-        theme = {
-          ['doom-one'] = {
-            { qfPosition = { link = 'Todo' } },
-          },
-        },
-      })
-
-      require('pqf').setup()
-    end,
+    config = function() require('pqf').setup() end,
   }, -- nvim-pqf
 
   -----------------------------------------------------------------------------//
   -- Utilities
   -----------------------------------------------------------------------------//
-  { -- better-escape
+  {
     'max397574/better-escape.nvim',
     event = { 'InsertEnter' },
     opts = {
-      mapping = { 'jk', 'jj' }, -- a table with mappings to use
+      mapping = { 'jk' }, -- a table with mappings to use
       timeout = vim.o.timeoutlen, -- the time in which the keys must be hit in ms. Use option timeoutlen by default
       clear_empty_lines = false, -- clear line after escaping if there is only whitespace
       keys = '<Esc>', -- keys used for escaping, if it is a function will use the result everytime
     },
-  },
-  { -- vim-smartword
+  }, -- better-escape
+  {
     'anuvyklack/vim-smartword',
     enabled = false,
     event = 'VeryLazy',
-  },
-  { -- vim-repeat
+  }, -- vim-smartword
+  {
     'tpope/vim-repeat',
-    lazy = true,
     event = { 'BufReadPost', 'BufNewFile' },
-  },
-  { -- vim-visual-multi
+  }, -- vim-repeat
+  {
     'mg979/vim-visual-multi',
     keys = {
       { '<c-n>', '<Plug>(VM-Find-Under)' },
@@ -203,14 +125,14 @@ return {
       vim.g.VM_silent_exit = 1
       vim.g.VM_default_mappings = 1
     end,
-  },
-  { -- nvim-origami
+  }, -- vim-visual-multi
+  {
     'chrisgrieser/nvim-origami',
     keys = { { '<BS>', function() require('origami').h() end, desc = 'toggle fold' } },
     event = 'BufReadPost',
     opts = {},
-  },
-  { -- debugprint.nvim
+  }, -- nvim-origami
+  {
     'andrewferrier/debugprint.nvim',
     event = 'VeryLazy',
     keys = {
@@ -226,11 +148,9 @@ return {
       },
       { '<leader>C', '<Cmd>DeleteDebugPrints<CR>', { desc = 'debugprint: clear all' } },
     },
-    opts = {
-      create_keymaps = false,
-    },
-  },
-  { -- nvim-autopairs
+    opts = { create_keymaps = false },
+  }, -- debugprint.nvim
+  {
     'windwp/nvim-autopairs',
     event = 'InsertEnter',
     dependencies = { 'hrsh7th/nvim-cmp' },
@@ -249,8 +169,8 @@ return {
         },
       }
     end,
-  },
-  { -- undotree
+  }, -- nvim-autopairs
+  {
     'mbbill/undotree',
     cmd = 'UndotreeToggle',
     keys = { { '<leader>u', '<Cmd>UndotreeToggle<CR>', desc = 'undotree: toggle' } },
@@ -259,9 +179,39 @@ return {
       vim.g.undotree_SetFocusWhenToggle = 1
       vim.g.undotree_WindowLayout = 3
     end,
-  },
+  }, -- undotree
+  {
+    'andymass/vim-matchup',
+    enabled = true,
+    event = 'BufReadPost',
+    init = function()
+      vim.g.matchup_matchparen_deferred = 1
+      vim.g.matchup_matchparen_offscreen = { method = 'popup' }
+    end,
+  }, -- vim-matchup
+  {
+    'chentoast/marks.nvim',
+    event = 'VeryLazy',
+    config = function()
+      mines.highlight.plugin('marks', {
+        { MarkSignHL = { link = 'Directory' } },
+        { MarkSignNumHL = { link = 'Directory' } },
+      })
+      map('n', '<leader>mb', '<Cmd>MarksQFListBuf<CR>', { desc = 'list buffer' })
+      map('n', '<leader>mg', '<Cmd>MarksQFListGlobal<CR>', { desc = 'list global' })
+      map('n', '<leader>m0', '<Cmd>BookmarksQFList 0<CR>', { desc = 'list bookmark' })
 
-  { -- dial.nvim
+      require('marks').setup {
+        force_write_shada = false, -- This can cause data loss
+        excluded_filetypes = { 'NeogitStatus', 'NeogitCommitMessage', 'toggleterm' },
+        bookmark_0 = { sign = '⚑', virt_text = '' },
+        mappings = {
+          annotate = 'm?',
+        },
+      }
+    end,
+  }, -- marks.nvim
+  {
     'monaqa/dial.nvim',
     keys = {
       { '<c-a>', '<Plug>(dial-increment)', mode = 'n', 'v' },
@@ -312,41 +262,9 @@ return {
           casing,
         },
         markdown = { augend.integer.alias.decimal, augend.misc.alias.markdown_header },
-        yeaml = { augend.integer.alias.decimal, augend.semver.alias.semver },
+        yaml = { augend.integer.alias.decimal, augend.semver.alias.semver },
         toml = { augend.integer.alias.decimal, augend.semver.alias.semver },
       }
     end,
-  },
-  { -- marks.nvim
-    'chentoast/marks.nvim',
-    event = 'VeryLazy',
-    config = function()
-      mines.highlight.plugin('marks', {
-        { MarkSignHL = { link = 'Directory' } },
-        { MarkSignNumHL = { link = 'Directory' } },
-      })
-      map('n', '<leader>mb', '<Cmd>MarksQFListBuf<CR>', { desc = 'list buffer' })
-      map('n', '<leader>mg', '<Cmd>MarksQFListGlobal<CR>', { desc = 'list global' })
-      map('n', '<leader>m0', '<Cmd>BookmarksQFList 0<CR>', { desc = 'list bookmark' })
-
-      require('marks').setup {
-        force_write_shada = false, -- This can cause data loss
-        excluded_filetypes = { 'NeogitStatus', 'NeogitCommitMessage', 'toggleterm' },
-        bookmark_0 = { sign = '⚑', virt_text = '' },
-        mappings = {
-          annotate = 'm?',
-        },
-      }
-    end,
-  },
-
-  { -- vim-matchup
-    'andymass/vim-matchup',
-    enabled = false,
-    event = 'BufReadPost',
-    init = function()
-      vim.g.matchup_matchparen_deferred = 1
-      vim.g.matchup_matchparen_offscreen = { method = 'popup' }
-    end,
-  },
+  }, -- dial.nvim
 }

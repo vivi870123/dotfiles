@@ -190,7 +190,7 @@ opt.splitbelow = true -- New split at bottom
 opt.splitright = true -- New split on right
 opt.splitkeep = 'screen' -- New split keep the text on the same screen line
 
-opt.cmdheight = 0
+opt.cmdheight = 1 -- NOTE: temporary
 -- opt.colorcolumn = '+0'    -- Align text at 'textwidth'
 opt.showtabline = 1 -- show the tabline if there is 2 tabs
 opt.helpheight = 0 -- disable help window resizing

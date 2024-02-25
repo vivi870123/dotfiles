@@ -2,9 +2,9 @@ if not mines then return end
 
 local fn, api, uv, cmd, fmt = vim.fn, vim.api, vim.loop, vim.cmd, string.format
 local augroup, command = mines.augroup, mines.command
-local abbr = require('util.abbrs').abbr
+local abbr = require('util.abbrs').set
 
-local sys = require'sys'
+local sys = require 'sys'
 
 local recursive_map = function(mode, lhs, rhs, opts)
   opts = opts or {}

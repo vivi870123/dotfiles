@@ -32,6 +32,9 @@ local sys = {
   ---$HOME/.projects
   projects = fn.expand '~/projects',
 
+  package_package = stdpath('data') .. '/site',
+  package_source = stdpath('config') .. '/src/',
+
   ---$HOME/.projects/woriook
   work = fn.expand '~/projects/work',
 

@@ -2,11 +2,7 @@ return {
   'echasnovski/mini.bufremove',
   event = 'VeryLazy',
   keys = {
-    {
-      'sx',
-      function() require('mini.bufremove').delete(0, true) end,
-      desc = 'Delete Buffer (Force)',
-    },
+    { 'sx', function() require('mini.bufremove').delete(0, true) end, desc = 'Delete Buffer (Force)' },
   },
   config = function()
     -- :Bd[!] for layout-safe bufdelete

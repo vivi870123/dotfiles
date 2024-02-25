@@ -4,7 +4,7 @@ local L = vim.lsp.log_levels
 local function notify(msg) return vim.notify(msg, L.ERROR, { title = 'Nvim Abbrs' }) end
 
 return {
-  abbr = function(abbr)
+  set = function(abbr)
     vim.validate { abbreviation = { abbr, 'table' } }
     if not abbr.mode or not abbr.lhs then
       notify 'Missing arguments!! set_abbr need a mode and a lhs attribbutes'

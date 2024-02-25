@@ -3,7 +3,6 @@ if vim.g.vscode then return end
 if vim.loader then vim.loader.enable() end
 
 local sys = require 'sys'
-
 ----------------------------------------------------------------------------------------------------
 -- Global namespace
 ----------------------------------------------------------------------------------------------------
@@ -27,6 +26,20 @@ _G.mines = mines or namespace
 _G.map = vim.keymap.set
 _G.P = vim.print
 
+_G.RELOAD = function(pkg)
+  if vim then
+    if vim.is_thread() then
+      package.loaded[pkg] = nil
+    elseif vim.v.vim_did_enter == 1 then
+      package.loaded[pkg] = nil
+      if vim.loader and vim.loader.enabled then vim.loader.reset(pkg) end
+    end
+  else
+    package.loaded[pkg] = nil
+  end
+  return require(pkg)
+end
+
 ----------------------------------------------------------------------------------------------------
 -- Settings
 ----------------------------------------------------------------------------------------------------
@@ -35,10 +48,9 @@ require 'globals'
 require 'highlights'
 require 'ui'
 require 'settings'
+require 'util.mini'
 
-------------------------------------------------------------------------------------------------------
--- Plugin Manager Setup
-------------------------------------------------------------------------------------------------------
+
 local lazypath = sys.data .. '/lazy/lazy.nvim'
 if not vim.loop.fs_stat(lazypath) then
   vim.fn.system {
@@ -60,7 +72,6 @@ if vim.env.NVIM then return require('lazy').setup { { 'willothy/flatten.nvim', c
 require('lazy').setup {
   spec = {
     { import = 'plugins' },
-    { import = 'plugins.mini' },
   },
   lockfile = sys.data .. '/lazy-lock.json', -- lockfile generated after running update.
   concurrency = vim.loop.available_parallelism() * 2,

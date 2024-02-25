@@ -1,6 +1,8 @@
 return {
   'kristijanhusak/vim-dadbod-ui',
-  keys = { { '<leader>db', '<cmd>DBUIToggle<CR>', desc = 'dadbod: toggle' } },
+  keys = {
+    { '<leader>db', '<cmd>DBUIToggle<CR>', desc = 'dadbod: toggle' }
+  },
   dependencies = {
     'tpope/vim-dadbod',
     'tpope/vim-dotenv',
@@ -51,3 +53,4 @@ return {
     }
   end,
 }
+

@@ -1,5 +1,5 @@
 local fn = vim.fn
-local keymap = vim.keymap.del
+local keymap = vim.keymap
 local border = mines.ui.current.border
 local command, falsy = mines.command, mines.falsy
 

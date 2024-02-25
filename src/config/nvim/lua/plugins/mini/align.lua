@@ -1,4 +1,4 @@
-return {
+return { -- align
   'echasnovski/mini.align',
   event = 'VeryLazy',
   opts = {

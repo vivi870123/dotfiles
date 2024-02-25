@@ -1,4 +1,4 @@
-return {
+return { 
   'echasnovski/mini.bracketed',
   event = 'VeryLazy',
   opts = {
@@ -17,4 +17,3 @@ return {
     file = { suffix = '', options = {} },
   },
 }
-

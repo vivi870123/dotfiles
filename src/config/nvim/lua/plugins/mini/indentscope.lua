@@ -1,6 +1,6 @@
-return {
+return { 
   'echasnovski/mini.indentscope',
-  lazy = false,
+  -- lazy = false,
   opts = function()
     return {
       symbol = '│',
@@ -22,7 +22,7 @@ return {
   config = function(_, opts)
     require('mini.indentscope').setup(opts)
 
-    require('util.mini').disable_mini_module('indentscope', {
+    mines.mini.disable_mini_module('indentscope', {
       terminal = true,
       filetype = {
         'alpha',

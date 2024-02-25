@@ -58,13 +58,13 @@ return {
     -----------------------------------------------------------------------------//
     -- Quotes
     -----------------------------------------------------------------------------//
-    vim.keymap.set("n" ,[[<leader>"]], [[ciw"<c-r>""<esc>]], { desc = 'surround with double quotes' })
-    vim.keymap.set("n" ,'<leader>`', [[ciw`<c-r>"`<esc>]], { desc = 'surround with backticks' })
-    vim.keymap.set("n" ,"<leader>'", [[ciw'<c-r>"'<esc>]], { desc = 'surround with single quotes' })
-    vim.keymap.set("n" ,'<leader>)', [[ciw(<c-r>")<esc>]], { desc = 'surround with parentheses' })
-    vim.keymap.set("n" ,'<leader>}', [[ciw{<c-r>"}<esc>]], { desc = 'surround with curly braces' })
+    vim.keymap.set('n', [[<leader>"]], [[ciw"<c-r>""<esc>]], { desc = 'surround with double quotes' })
+    vim.keymap.set('n', '<leader>`', [[ciw`<c-r>"`<esc>]], { desc = 'surround with backticks' })
+    vim.keymap.set('n', "<leader>'", [[ciw'<c-r>"'<esc>]], { desc = 'surround with single quotes' })
+    vim.keymap.set('n', '<leader>)', [[ciw(<c-r>")<esc>]], { desc = 'surround with parentheses' })
+    vim.keymap.set('n', '<leader>}', [[ciw{<c-r>"}<esc>]], { desc = 'surround with curly braces' })
 
-    require('util.mini').configure_mini_module('surround', {
+    mines.mini.configure_mini_module('surround', {
       custom_surroundings = {
         s = {
           input = { '%[%[().-()%]%]' },
@@ -72,7 +72,7 @@ return {
         },
       },
     }, { filetype = 'lua' })
-    require('util.mini').configure_mini_module('surround', {
+    mines.mini.configure_mini_module('surround', {
       custom_surroundings = {
         ['B'] = { -- Surround for bold
           input = { '%*%*().-()%*%*' },
@@ -94,7 +94,7 @@ return {
         },
       },
     }, { filetype = 'markdown' })
-    require('util.mini').configure_mini_module('surround', {
+    mines.mini.configure_mini_module('surround', {
       custom_surroundings = {
         l = {
           input = { '%[%[().-()%]%]' },

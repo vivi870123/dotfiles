@@ -1,8 +1,6 @@
-local util = require 'util.mini'
-
 return {
   'echasnovski/mini.ai',
-  event = { 'BufRead', 'BufNewFile' },
+  -- event = { 'BufRead', 'BufNewFile' },
   opts = function()
     local gen_spec = require('mini.ai').gen_spec
 
@@ -73,7 +71,7 @@ return {
     require('mini.ai').setup(opts)
 
     local spec_pair = require('mini.ai').gen_spec.pair
-    util.configure_mini_module('ai', {
+    mines.mini.configure_mini_module('ai', {
       custom_textobjects = {
         ['*'] = spec_pair('*', '*', { type = 'greedy' }), -- Grab all asterisks when selecting
         ['_'] = spec_pair('_', '_', { type = 'greedy' }), -- Grab all underscores when selecting
@@ -81,10 +79,11 @@ return {
         ['L'] = { '%b[]%b()', '^%[.-%]%(()[^)]+()%)$' }, -- Link targeting href
       },
     }, { filetype = 'markdown' })
-    util.configure_mini_module('ai', {
+    mines.mini.configure_mini_module('ai', {
       custom_textobjects = {
         ['s'] = require('mini.ai').gen_spec.pair('[[', ']]'),
       },
     }, { filetype = 'lua' })
   end,
 }
+

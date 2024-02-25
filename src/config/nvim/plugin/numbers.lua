@@ -1,8 +1,6 @@
 if not mines then return end
 
-local ui = mines.ui
-local command = mines.command
-local augroup = mines.augroup
+local ui, command, augroup = mines.ui, mines.command, mines.augroup
 
 -- Inspiration
 -- 1. vim-relativity
@@ -59,3 +57,4 @@ augroup('ToggleRelativeLineNumbers', {
 })
 
 return M
+

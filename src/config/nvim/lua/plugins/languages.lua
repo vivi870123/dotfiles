@@ -30,21 +30,35 @@ return {
   { -- rest.nvim
     'NTBBloodbath/rest.nvim',
     ft = 'http',
-    opts = {
-      result_split_horizontal = false,
-      skip_ssl_verification = false,
-      encode_url = false,
-      highlight = { enabled = true, timeout = 150 },
-      result = {
-        show_url = true,
-        show_http_info = true,
-        show_headers = true,
-      },
-      jump_to_request = false,
-      env_file = '.env',
-      custom_dynamic_variables = {},
-      yank_dry_run = true,
-    },
+    opts = function()
+      local function format(body, ft)
+        if vim.fn.executable "prettier" == 1 then
+          return vim.fn.system({ "prettier", "--parser", ft }, body)
+        else
+          return body
+        end
+      end
+
+      return {
+        result_split_horizontal = false,
+        skip_ssl_verification = false,
+        encode_url = false,
+        highlight = { enabled = true, timeout = 150 },
+        result = {
+          show_url = true,
+          show_http_info = true,
+          show_headers = true,
+          formatters = {
+            html = function(body) return format(body, 'html') end,
+            json = function(body) return format(body, 'json') end,
+          }
+        },
+        jump_to_request = false,
+        env_file = '.env',
+        custom_dynamic_variables = {},
+        yank_dry_run = true,
+      }
+    end,
     config = function(_, opts)
       require('rest-nvim').setup(opts)
 
@@ -158,3 +172,4 @@ return {
     opts = {},
   },
 }
+

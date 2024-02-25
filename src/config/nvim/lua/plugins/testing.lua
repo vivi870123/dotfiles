@@ -34,14 +34,7 @@ return {
       { '[n', next_failed, desc = 'jump to next failed test' },
       { ']n', prev_failed, desc = 'jump to previous failed test' },
     },
-    ft = {
-      'php',
-      'javascript',
-      'typescript',
-      'javascriptreact',
-      'typescriptreact',
-      'lua',
-    },
+    ft = { 'php', 'typescript', 'typescriptreact', 'lua' },
     config = function()
       local namespace = api.nvim_create_namespace 'neotest'
       diagnostic.config({
@@ -76,3 +69,4 @@ return {
     end,
   },
 }
+

@@ -1,4 +1,4 @@
-local fn, api, cmd, fmt, uv = vim.fn, vim.api, vim.cmd, string.format, vim.loop
+local fn, fs, api, cmd, fmt, uv, validate = vim.fn, vim.fs, vim.api, vim.cmd, string.format, vim.loop, vim.validate
 local l = vim.log.levels
 
 ----------------------------------------------------------------------------------------------------
@@ -301,17 +301,17 @@ function mines.buf_get_name(buf) return vim.api.nvim_buf_get_name(0) end
 function mines.get_current_file_path() return mines.buf_get_name(vim.api.nvim_get_current_buf()) end
 
 function mines.normalize(path)
-  vim.validate { path = { path, 'string' } }
+  validate { path = { path, 'string' } }
   assert(path ~= '', debug.traceback 'Empty path')
   if path == '%' then
     local cwd = ((uv.cwd() .. '/'):gsub('\\', '/'):gsub('/+', '/'))
     path = (vim.api.nvim_buf_get_name(0):gsub(vim.pesc(cwd), ''))
   end
-  return vim.fs.normalize(path)
+  return fs.normalize(path)
 end
 
 function mines.exists(filename)
-  vim.validate { filename = { filename, 'string' } }
+  validate { filename = { filename, 'string' } }
   if filename == '' then return false end
   local stat = uv.fs_stat(mines.normalize(filename))
   return stat and stat.type or false
@@ -322,7 +322,7 @@ function mines.is_dir(filename) return mines.exists(filename) == 'directory' end
 function mines.is_file(filename) return mines.exists(filename) == 'file' end
 
 function mines.mkdir(dirname, recurive)
-  vim.validate {
+  validate {
     dirname = { dirname, 'string' },
     recurive = { recurive, 'boolean', true },
   }
@@ -354,7 +354,7 @@ function mines.mkdir(dirname, recurive)
 end
 
 function mines.link(src, dest, sym, force)
-  vim.validate {
+  validate {
     source = { src, 'string' },
     destination = { dest, 'string' },
     use_symbolic = { sym, 'boolean', true },
@@ -364,7 +364,7 @@ function mines.link(src, dest, sym, force)
   assert(dest ~= '', debug.traceback 'Empty destination')
   assert(mines.exists(src), debug.traceback('link source ' .. src .. ' does not exists'))
 
-  if dest == '.' then dest = vim.fs.basename(src) end
+  if dest == '.' then dest = fs.basename(src) end
 
   dest = mines.normalize(dest)
   src = mines.normalize(src)
@@ -401,46 +401,46 @@ function mines.link(src, dest, sym, force)
 end
 
 function mines.executable(exec)
-  vim.validate { exec = { exec, 'string' } }
+  validate { exec = { exec, 'string' } }
   assert(exec ~= '', debug.traceback 'Empty executable string')
-  return vim.fn.executable(exec) == 1
+  return fn.executable(exec) == 1
 end
 
 function mines.exepath(exec)
-  vim.validate { exec = { exec, 'string' } }
+  validate { exec = { exec, 'string' } }
   assert(exec ~= '', debug.traceback 'Empty executable string')
-  local path = vim.fn.exepath(exec)
+  local path = fn.exepath(exec)
   return path ~= '' and path or false
 end
 
 function mines.is_absolute(path)
-  vim.validate { path = { path, 'string' } }
+  validate { path = { path, 'string' } }
   assert(path ~= '', debug.traceback 'Empty path')
   if path:sub(1, 1) == '~' then path = path:gsub('~', uv.os_homedir()) end
   return path:sub(1, 1) == '/'
 end
 
 function mines.is_root(path)
-  vim.validate { path = { path, 'string' } }
+  validate { path = { path, 'string' } }
   assert(path ~= '', debug.traceback 'Empty path')
 
   return path == '/'
 end
 
 function mines.realpath(path)
-  vim.validate { path = { path, 'string' } }
+  validate { path = { path, 'string' } }
   assert(mines.exists(path), debug.traceback(([[Path "%s" doesn't exists]]):format(path)))
   return (uv.fs_realpath(mines.normalize(path)):gsub('\\', '/'))
 end
 
 function mines.basename(file)
-  vim.validate { file = { file, 'string', true } }
+  validate { file = { file, 'string', true } }
   if file == nil then return nil end
   return file:match '[/\\]$' and '' or (file:match('[^\\/]*$'):gsub('\\', '/'))
 end
 
 function mines.extension(path)
-  vim.validate { path = { path, 'string' } }
+  validate { path = { path, 'string' } }
   assert(path ~= '', debug.traceback 'Empty path')
   local extension = ''
   path = mines.normalize(path)
@@ -452,14 +452,14 @@ function mines.extension(path)
 end
 
 function mines.filename(path)
-  vim.validate { path = { path, 'string' } }
-  local name = vim.fs.basename(path)
+  validate { path = { path, 'string' } }
+  local name = fs.basename(path)
   local extension = mines.extension(name)
   return extension ~= '' and (name:gsub('%.' .. extension .. '$', '')) or name
 end
 
 function mines.dirname(file)
-  vim.validate { file = { file, 'string', true } }
+  validate { file = { file, 'string', true } }
   if file == nil then return nil end
 
   if not file:match '[\\/]' then
@@ -472,7 +472,7 @@ function mines.dirname(file)
 end
 
 function mines.is_parent(parent, child)
-  vim.validate { parent = { parent, 'string' }, child = { child, 'string' } }
+  validate { parent = { parent, 'string' }, child = { child, 'string' } }
   assert(mines.is_dir(parent), debug.traceback(('Parent path is not a directory "%s"'):format(parent)))
   assert(mines.is_dir(child), debug.traceback(('Child path is not a directory "%s"'):format(child)))
 
@@ -486,7 +486,7 @@ function mines.is_parent(parent, child)
 end
 
 function mines.openfile(path, flags, callback)
-  vim.validate {
+  validate {
     path = { path, 'string' },
     flags = { flags, 'string' },
     callback = { callback, 'function' },
@@ -504,7 +504,7 @@ function mines.openfile(path, flags, callback)
 end
 
 local function fs_write(path, data, append, callback)
-  vim.validate {
+  validate {
     path = { path, 'string' },
     data = {
       data,
@@ -551,7 +551,7 @@ function mines.updatefile(path, data, callback)
 end
 
 function mines.readfile(path, split, callback)
-  vim.validate {
+  validate {
     path = { path, 'string' },
     callback = { callback, 'function', true },
     split = { split, 'boolean', true },
@@ -590,7 +590,7 @@ function mines.readfile(path, split, callback)
 end
 
 function mines.chmod(path, mode, base)
-  vim.validate {
+  validate {
     path = { path, 'string' },
     mode = {
       mode,
@@ -611,7 +611,7 @@ function mines.chmod(path, mode, base)
 end
 
 function mines.ls(path, opts)
-  vim.validate {
+  validate {
     path = { path, 'string' },
     opts = { opts, 'table', true },
   }
@@ -634,7 +634,7 @@ function mines.get_files(path) return mines.ls(path, { type = 'file' }) end
 function mines.get_dirs(path) return mines.ls(path, { type = 'directory' }) end
 
 function mines.decode_json(data)
-  vim.validate {
+  validate {
     data = { data, { 'string', 'table' } },
   }
   if type(data) == type {} then data = table.concat(data, '\n') end
@@ -642,7 +642,7 @@ function mines.decode_json(data)
 end
 
 function mines.encode_json(data)
-  vim.validate {
+  validate {
     data = { data, 'table' },
   }
   local json = vim.json.encode(data)
@@ -650,7 +650,7 @@ function mines.encode_json(data)
 end
 
 function mines.read_json(filename)
-  vim.validate {
+  validate {
     filename = { filename, 'string' },
   }
   assert(filename ~= '', debug.traceback 'Empty filename')
@@ -660,7 +660,7 @@ function mines.read_json(filename)
 end
 
 function mines.dump_json(filename, data)
-  vim.validate { filename = { filename, 'string' }, data = { data, 'table' } }
+  validate { filename = { filename, 'string' }, data = { data, 'table' } }
   assert(filename ~= '', debug.traceback 'Empty filename')
   if filename:sub(1, 1) == '~' then filename = filename:gsub('~', uv.os_homedir()) end
   return mines.writefile(filename, mines.encode_json(data))
@@ -680,7 +680,7 @@ function mines.get_root()
 
   ---@type string?
   local path = vim.api.nvim_buf_get_name(0)
-  path = path ~= '' and vim.loop.fs_realpath(path) or nil
+  path = path ~= '' and uv.fs_realpath(path) or nil
   ---@type string[]
   local roots = {}
   if path then
@@ -690,7 +690,7 @@ function mines.get_root()
         or client.config.root_dir and { client.config.root_dir }
         or {}
       for _, p in ipairs(paths) do
-        local r = vim.loop.fs_realpath(p)
+        local r = uv.fs_realpath(p)
         if path:find(r, 1, true) then roots[#roots + 1] = r end
       end
     end
@@ -699,10 +699,10 @@ function mines.get_root()
   ---@type string?
   local root = roots[1]
   if not root then
-    path = path and vim.fs.dirname(path) or vim.loop.cwd()
+    path = path and fs.dirname(path) or uv.cwd()
     ---@type string?
-    root = vim.fs.find(root_patterns, { path = path, upward = true })[1]
-    root = root and vim.fs.dirname(root) or vim.loop.cwd()
+    root = fs.find(root_patterns, { path = path, upward = true })[1]
+    root = root and fs.dirname(root) or uv.cwd()
   end
   ---@cast root string
   return root
@@ -711,4 +711,23 @@ end
 function mines.reload(pkg)
   package.loaded[pkg] = nil
   return require(pkg)
+end
+
+----------------------------------------------------------------------------------------------------
+-- Git
+----------------------------------------------------------------------------------------------------
+function mines.is_git_repo(root)
+  validate {
+    root = { root, 'string' },
+  }
+
+  local is_file = mines.is_file
+  local is_dir = mines.is_dir
+
+  root = fs.normalize(root)
+  local git = root .. '/.git'
+
+  if is_dir(git) or is_file(git) then return git end
+  local results = fs.find('.git', { path = root, upward = true })
+  return #results > 0 and results[1] or false
 end

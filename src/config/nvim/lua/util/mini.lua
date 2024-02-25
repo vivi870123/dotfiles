@@ -95,4 +95,36 @@ function M.configure_mini_module(module, config, opts)
   mini_autocmd(callback, opts)
 end
 
-return M
+---Check if buffers are unsaved and prompt to save changes, continue without saving, or cancel operation
+---@param all_buffers? boolean Check all buffers, or only current. Defaults to `true`
+---@return boolean proceed `true` if OK to continue with action, `false` if user cancelled
+function M.confirm_discard_changes(all_buffers)
+  local buf_list = all_buffers == false and { 0 } or vim.api.nvim_list_bufs()
+  local unsaved = vim.tbl_filter(
+    function(buf_id) return vim.bo[buf_id].modified and vim.bo[buf_id].buflisted end,
+    buf_list
+  )
+
+  if #unsaved == 0 then return true end
+
+  for _, buf_id in ipairs(unsaved) do
+    local name = vim.api.nvim_buf_get_name(buf_id)
+    local result = vim.fn.confirm(
+      string.format('Save changes to "%s"?', name ~= '' and vim.fn.fnamemodify(name, ':~:.') or 'Untitled'),
+      '&Yes\n&No\n&Cancel',
+      1,
+      'Question'
+    )
+
+    if result == 1 then
+      if buf_id ~= 0 then vim.cmd('buffer ' .. buf_id) end
+      vim.cmd 'update'
+    elseif result == 0 or result == 3 then
+      return false
+    end
+  end
+
+  return true
+end
+
+mines.mini = M

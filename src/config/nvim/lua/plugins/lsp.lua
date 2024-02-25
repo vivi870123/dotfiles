@@ -111,6 +111,9 @@ return {
           'shellharden',
           'shellcheck',
           'stylua',
+
+          'lua-language-server',
+          'intelephense'
         },
         handlers = {
           sql_formatter = function()

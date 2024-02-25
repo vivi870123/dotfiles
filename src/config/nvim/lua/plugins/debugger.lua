@@ -2,7 +2,7 @@ local fn = vim.fn
 local icons, highlight, palette = mines.ui.icons, mines.highlight, mines.ui.palette
 
 return {
-  { -- nvim-dap
+  {
     'mfussenegger/nvim-dap',
     keys = {
       {
@@ -27,6 +27,7 @@ return {
     },
     dependencies = {
       { -- vscode-js-debug
+        enabled = false,
         'microsoft/vscode-js-debug',
         build = 'npm install --legacy-peer-deps && npx gulp vsDebugServerBundle && mv dist out',
       },
@@ -101,10 +102,11 @@ return {
         },
       }
     end,
-  },
-  { -- nvim-dap-vscode-js
+  }, -- nvim-dap
+  {
     'mxsdev/nvim-dap-vscode-js',
     ft = { 'javascript', 'javascriptreact', 'typescript', 'typescriptreact' },
+    enabled = false,
     dependencies = { 'mfussenegger/nvim-dap' },
     opts = {
       adapters = { 'chrome', 'pwa-node', 'pwa-chrome', 'node-terminal', 'pwa-extensionHost' },
@@ -155,5 +157,6 @@ return {
         }
       end
     end,
-  },
+  }, -- nvim-dap-vscode-js
 }
+

@@ -1,9 +1,7 @@
 if not mines then return end
 
 local fn, api, v, env, cmd = vim.fn, vim.api, vim.v, vim.env, vim.cmd
-
-local augroup = mines.augroup
-local sys = require 'sys'
+local augroup, sys = mines.augroup, require 'sys'
 
 augroup('CheckOutsideTime', {
   -- automatically check for changed files outside vim
@@ -14,7 +12,8 @@ augroup('CheckOutsideTime', {
 augroup(
   'UpdateVim',
   { event = 'FocusLost', pattern = '*', command = 'silent! wall' },
-  { event = 'VimResized', pattern = '*', command = 'wincmd =' } -- Make windows equal size when vim resizes
+  -- Make windows equal size when vim resizes
+  { event = 'VimResized', pattern = '*', command = 'wincmd =' }
 )
 
 augroup('WindowBehaviours', {
@@ -33,13 +32,15 @@ augroup('WindowBehaviours', {
   end,
 })
 
-local save_excluded = {
-  'neo-tree',
-  'neo-tree-popup',
-  'lua.luapad',
-  'gitcommit',
-  'NeogitCommitMessage',
-}
+augroup('TerminalAutocommands', {
+  event = { 'TermClose' },
+  command = function(args)
+    --- automatically close a terminal if the job was successful
+    if mines.falsy(v.event.status) and mines.falsy(vim.bo[args.buf].ft) then cmd.bdelete { args.buf, bang = true } end
+  end,
+})
+
+local save_excluded = { 'lua.luapad', 'gitcommit', 'NeogitCommitMessage' }
 local function can_save()
   return mines.falsy(fn.win_gettype())
     and mines.falsy(vim.bo.buftype)
@@ -109,18 +110,9 @@ augroup('Utilities', {
   end,
 })
 
-augroup('TerminalAutocommands', {
-  event = { 'TermClose' },
-  command = function(args)
-    --- automatically close a terminal if the job was successful
-    if mines.falsy(v.event.status) and mines.falsy(vim.bo[args.buf].ft) then cmd.bdelete { args.buf, bang = true } end
-  end,
-})
-
 ----------------------------------------------------------------------------------------------------
 -- CursorLine
 ----------------------------------------------------------------------------------------------------
-local cursorline_exclude = { 'alpha', 'toggleterm' }
 
 ---@param buf number
 ---@return boolean
@@ -129,7 +121,6 @@ local function should_show_cursorline(buf)
     and not vim.wo.previewwindow
     and vim.wo.winhighlight == ''
     and vim.bo[buf].filetype ~= ''
-    and not vim.tbl_contains(cursorline_exclude, vim.bo[buf].filetype)
 end
 
 augroup('Cursorline', {
@@ -137,7 +128,10 @@ augroup('Cursorline', {
   pattern = '*',
   command = function(args) vim.wo.cursorline = should_show_cursorline(args.buf) end,
 }, {
-  event = { 'InsertEnter', 'WinLeave' },
+  event = {
+    'InsertEnter',
+    'WinLeave',
+  },
   pattern = '*',
   command = function() vim.wo.cursorline = false end,
 })
@@ -173,25 +167,20 @@ local function hl_search()
   if col < p_start or col > p_end then stop_hl() end
 end
 
-augroup('VimrcIncSearchHighlight', {
-  event = 'CursorMoved',
-  command = function() hl_search() end,
-}, {
-  event = 'InsertEnter',
-  command = function() stop_hl() end,
-}, {
-  event = 'OptionSet',
-  pattern = 'hlsearch',
-  command = function()
-    vim.schedule(function() cmd.redrawstatus() end)
-  end,
-}, {
-  event = 'RecordingEnter',
-  command = function() vim.o.hlsearch = false end,
-}, {
-  event = 'RecordingLeave',
-  command = function() vim.o.hlsearch = true end,
-})
+augroup(
+  'VimrcIncSearchHighlight',
+  { event = 'CursorMoved', command = function() hl_search() end },
+  { event = 'InsertEnter', command = function() stop_hl() end },
+  { event = 'RecordingEnter', command = function() vim.o.hlsearch = false end },
+  { event = 'RecordingLeave', command = function() vim.o.hlsearch = true end },
+  {
+    event = 'OptionSet',
+    pattern = 'hlsearch',
+    command = function()
+      vim.schedule(function() cmd.redrawstatus() end)
+    end,
+  }
+)
 
 ----------------------------------------------------------------------------------------------------
 -- SmartClose
@@ -206,15 +195,11 @@ local smart_close_filetypes = mines.p_table {
   ['git.*'] = true,
   ['Neogit.*'] = true,
   ['neotest.*'] = true,
-  ['fugitive.*'] = true,
-  ['copilot.*'] = true,
   ['tsplayground'] = true,
   ['startuptime'] = true,
 }
 
-local smart_close_buftypes = mines.p_table {
-  ['nofile'] = true,
-}
+local smart_close_buftypes = mines.p_table { ['nofile'] = true }
 
 local function smart_close()
   if fn.winnr '$' ~= 1 then api.nvim_win_close(0, true) end

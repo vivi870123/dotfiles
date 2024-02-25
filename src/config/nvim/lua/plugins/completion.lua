@@ -35,14 +35,16 @@ return {
   },
   { -- nvim-cmp
     'hrsh7th/nvim-cmp',
-    event = 'VeryLazy',
+    -- event = 'VeryLazy',
+    event = { "CmdlineEnter", "InsertEnter" },
     dependencies = {
       { 'danymat/neogen' },
       { 'Exafunction/codeium.vim' },
       { 'onsails/lspkind.nvim' },
+      { "hrsh7th/cmp-calc" },
       { 'hrsh7th/cmp-nvim-lsp' },
-      { 'hrsh7th/cmp-nvim-lsp' },
-      { 'hrsh7th/cmp-path' },
+      { "hrsh7th/cmp-cmdline" },
+      { 'FelipeLema/cmp-async-path' },
       { 'hrsh7th/cmp-buffer' },
       { 'lukas-reineke/cmp-rg' },
       { 'saadparwaiz1/cmp_luasnip', dependencies = { 'LuaSnip' } },
@@ -74,7 +76,6 @@ return {
         if luasnip.expand_or_jumpable() then return luasnip.expand_or_jump() end
         cmp.confirm()
       end
-
       return {
         snippet = {
           expand = function(args) require('luasnip').lsp_expand(args.body) end,
@@ -106,10 +107,13 @@ return {
           ['<tab>'] = cmp.mapping(tab, { 'i', 's' }),
           ['<s-tab>'] = cmp.mapping(shift_tab, { 'i', 's' }),
           ['<c-e>'] = cmp.mapping.abort(),
-          ['<c-j>'] = cmp.mapping.select_next_item { behavior = cmp.SelectBehavior.Insert },
-          ['<c-k>'] = cmp.mapping.select_prev_item { behavior = cmp.SelectBehavior.Insert },
-          ['<c-n>'] = cmp.mapping.select_next_item { behavior = cmp.SelectBehavior.Insert },
-          ['<c-p>'] = cmp.mapping.select_prev_item { behavior = cmp.SelectBehavior.Insert },
+          ['<c-x>'] = cmp.mapping.abort(),
+          ['<c-j>'] = cmp.mapping.select_next_item { behavior = cmp.SelectBehavior.Select },
+          ['<c-k>'] = cmp.mapping.select_prev_item { behavior = cmp.SelectBehavior.Select },
+          ['<c-n>'] = cmp.mapping.select_next_item { behavior = cmp.SelectBehavior.Select },
+          ['<c-p>'] = cmp.mapping.select_prev_item { behavior = cmp.SelectBehavior.Select },
+          ["<down>"] = cmp.mapping.select_next_item { behavior = cmp.SelectBehavior.Select },
+          ["<up>"] = cmp.mapping.select_prev_item { behavior = cmp.SelectBehavior.Select },
         },
         formatting = {
           deprecated = true,
@@ -127,7 +131,8 @@ return {
               nvim_lsp = '[LSP]',
               nvim_lua = '[Lua]',
               emoji = '[EMOJI]',
-              path = '[Path]',
+              calc = '[CALC]',
+              async_path = '[Path]',
               luasnip = '[SN]',
               dictionary = '[D]',
               buffer = '[B]',
@@ -141,6 +146,9 @@ return {
           },
         },
         sources = cmp.config.sources {
+          { name = 'luasnip', option = { use_show_condition = false } },
+          { name = 'nvim_lsp', group_index = 2 },
+          { name = 'async_path', group_index = 2, max_item_count = 10 },
           {
             name = 'buffer',
             group_index = 3,
@@ -159,17 +167,20 @@ return {
               end,
             },
           },
-          { name = 'nvim_lsp', group_index = 2 },
-          { name = 'luasnip', option = { use_show_condition = false } },
           {
             name = 'rg',
             group_index = 3,
             keyword_length = 4,
             max_item_count = 10,
-            option = { additional_arguments = '--max-depth 8' },
+            entry_filter = function(entry, _)
+              return not (entry.exact and string.len(entry.completion_item.label) < 4)
+            end,
+            option = {
+              additional_arguments = "--max-depth 4 --one-file-system --smart-case",
+            },
           },
-          { name = 'path', group_index = 2, max_item_count = 10 },
           { name = 'spell', keyword_length = 4, group_index = 3 },
+          { name = "calc" },
         },
       }
     end,
@@ -181,8 +192,24 @@ return {
         { CmpItemMenu = { inherit = 'Comment', italic = true } },
       })
 
-      require('cmp').setup(opts)
-      require('cmp').setup.filetype({ 'dap-repl', 'dapui_watches' }, { sources = { { name = 'dap' } } })
+      local cmp = require('cmp')
+
+      cmp.setup(opts)
+      cmp.setup.filetype({ 'dap-repl', 'dapui_watches' }, { sources = { { name = 'dap' } } })
+
+      cmp.setup.cmdline({ "/", "?" }, {
+        mapping = cmp.mapping.preset.cmdline(),
+        sources = cmp.config.sources {
+          { name = "buffer" },
+        },
+      })
+      cmp.setup.cmdline(":", {
+        mapping = cmp.mapping.preset.cmdline(),
+        sources = cmp.config.sources {
+          { name = "async_path" },
+          { name = "cmdline" },
+        },
+      })
     end,
   },
   { -- Luasnip
@@ -285,20 +312,5 @@ return {
         end,
       })
     end,
-  },
-  { -- refactoring.nvim
-    'ThePrimeagen/refactoring.nvim',
-    keys = {
-      {
-        '<leader>R',
-        function() require('refactoring').select_refactor() end,
-        mode = 'v',
-        noremap = true,
-        silent = true,
-        expr = false,
-        desc = 'Refactor',
-      },
-    },
-    opts = true,
   },
 }

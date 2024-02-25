@@ -5,9 +5,10 @@ local border = ui.current.border
 local lspkind = require 'lspkind'
 
 return {
-  { -- dressing.nvim
+  {
     'stevearc/dressing.nvim',
-    enabled = true,
+    lazy = false,
+    enabled = false,
     init = function()
       ---@diagnostic disable-next-line: duplicate-set-field
       ui.input = function(...)
@@ -15,6 +16,10 @@ return {
         return vim.ui.input(...)
       end
 
+      ui.select = function(...)
+        require('lazy').load { plugins = { 'dressing.nvim' } }
+        return vim.ui.select(...)
+      end
     end,
     opts = {
       input = {
@@ -42,8 +47,8 @@ return {
         if opts.kind == 'codeaction' then return { backend = 'telescope', telescope = mines.telescope.cursor() } end
       end,
     },
-  },
-  { -- zen-mode.nvim
+  }, -- dressing.nvim
+  {
     'folke/zen-mode.nvim',
     cmd = 'ZenMode',
     keys = {
@@ -80,8 +85,8 @@ return {
         kitty = { enabled = true, font = '+2' },
       },
     },
-  },
-  { -- dropbar.nvim
+  }, -- zen-mode.nvim
+  {
     'Bekaboo/dropbar.nvim',
     event = 'VeryLazy',
     enabled = mines.ui.winbar.enable,
@@ -125,8 +130,8 @@ return {
         },
       },
     },
-  },
-  { -- nvim-notify
+  }, -- dropbar.nvim
+  {
     'rcarriga/nvim-notify',
     enabled = false,
     config = function()
@@ -166,37 +171,85 @@ return {
         desc = 'dismiss notifications',
       })
     end,
-  },
-  { -- nvim-ufo
-    'kevinhwang91/nvim-ufo',
-    enabled = true,
-    event = 'VeryLazy',
-    dependencies = { 'kevinhwang91/promise-async' },
-    keys = {
-      { 'zR', function() require('ufo').openAllFolds() end, 'open all folds' },
-      { 'zM', function() require('ufo').closeAllFolds() end, 'close all folds' },
-      { 'zp', function() require('ufo').peekFoldedLinesUnderCursor() end, 'preview fold' },
-    },
-    opts = function()
-      return {
-        open_fold_hl_timeout = 0,
-        preview = { win_config = { winhighlight = 'Normal:Normal,FloatBorder:Normal' } },
+  }, -- nvim-notify
+  {
+    "kevinhwang91/nvim-ufo",
+    event = { "BufRead", "CmdlineEnter", "InsertEnter" },
+    dependencies = "kevinhwang91/promise-async",
+    config = function()
+      local strwidth = vim.api.nvim_strwidth
+      local handler = function(virt_text, _, end_lnum, width, truncate, ctx)
+        local result, cur_width, padding = {}, 0, ''
+        local suffix_width = strwidth(ctx.text)
+        local target_width = width - suffix_width
+
+        for _, chunk in ipairs(virt_text) do
+          local chunk_text = chunk[1]
+          local chunk_width = strwidth(chunk_text)
+          if target_width > cur_width + chunk_width then
+            table.insert(result, chunk)
+          else
+            chunk_text = truncate(chunk_text, target_width - cur_width)
+            local hl_group = chunk[2]
+            table.insert(result, { chunk_text, hl_group })
+            chunk_width = strwidth(chunk_text)
+            if cur_width + chunk_width < target_width then
+              padding = padding .. (' '):rep(target_width - cur_width - chunk_width)
+            end
+            break
+          end
+          cur_width = cur_width + chunk_width
+        end
+
+        local end_text = ctx.get_fold_virt_text(end_lnum)
+        -- reformat the end text to trim excess whitespace from
+        -- indentation usually the first item is indentation
+        if end_text[1] and end_text[1][1] then end_text[1][1] = end_text[1][1]:gsub('[%s\t]+', '') end
+
+        vim.list_extend(result, { { ' ⋯ ', 'UfoFoldedEllipsis' }, unpack(end_text) })
+        table.insert(result, { padding, '' })
+        return result
+      end
+
+      local ufo = require "ufo"
+
+      ufo.setup { ---@diagnostic disable-line: missing-fields
         enable_get_fold_virt_text = true,
-        close_fold_kinds = { 'imports', 'comment' },
-        provider_selector = function(_, ft)
-          local ft_map = { rust = 'lsp' }
-          return ft_map[ft] or { 'treesitter', 'indent' }
-        end,
+        fold_virt_text_handler = handler,
+        open_fold_hl_timeout = 0,
+        preview = {
+          win_config = {
+            border = "none",
+            winblend = 8,
+            winhighlight = "Normal:NormalFloat",
+          },
+          mappings = {
+            close = "q",
+            scrollB = "<c-b>",
+            scrollF = "<c-f>",
+            scrollE = "<c-e>",
+            scrollY = "<c-y>",
+            switch = "K",
+            trace = "<cr>",
+          },
+        },
+        provider_selector = function() return { "treesitter", "indent" } end,
       }
+
+      vim.keymap.set("n", "zJ", ufo.goNextClosedFold, { desc = "Next closed fold" })
+      vim.keymap.set("n", "zK", ufo.goPreviousClosedFold, { desc = "Previours closed fold" })
+      vim.keymap.set("n", "zM", ufo.closeAllFolds, { desc = "Close all folds" })
+      vim.keymap.set("n", "zR", ufo.openAllFolds, { desc = "Open all folds" })
+      vim.keymap.set("n", "zk", ufo.goPreviousStartFold, { desc = "Start of previous fold" })
     end,
-  },
-  { -- ccc.nvim
+  }, -- nvim-ufo
+  {
     'uga-rosa/ccc.nvim',
     event = { 'BufRead', 'BufNewFile' },
     keys = {
-      { '<leader>cp', '<cmd>CccPick<cr>', desc = 'Pick' },
-      { '<leader>cc', '<cmd>CccConvert<cr>', desc = 'Convert' },
-      { '<leader>th', '<cmd>CccHighlighterToggle<cr>', desc = 'Toggle Highlighter' },
+      { '<leader>cp', '<cmd>CccPick<cr>', desc = 'pick' },
+      { '<leader>cc', '<cmd>CccConvert<cr>', desc = 'convert' },
+      { '<leader>th', '<cmd>CccHighlighterToggle<cr>', desc = 'highlighter' },
     },
     opts = function()
       local ccc = require 'ccc'
@@ -259,5 +312,37 @@ return {
         },
       }
     end,
-  },
+  }, -- ccc.nvim
+  {
+    'kevinhwang91/nvim-hlslens',
+    dependencies = { 'haya14busa/vim-asterisk' },
+    event = 'VeryLazy',
+    keys = function()
+      local function nN(char)
+        local ok, winid = require('hlslens').nNPeekWithUFO(char)
+        if ok and winid then
+          -- Safe to override buffer scope keymaps remapped by ufo,
+          -- ufo will restore previous buffer keymaps before closing preview window
+          -- Type <CR> will switch to preview window and fire `trace` action
+          map('n', '<CR>', function()
+            local keyCodes = api.nvim_replace_termcodes('<Tab><CR>', true, false, true)
+            api.nvim_feedkeys(keyCodes, 'im', false)
+          end, { buffer = true })
+        end
+      end
+      return {
+        { 'n', function() nN 'n' end, mode = { 'n', 'x' } },
+        { 'N', function() nN 'N' end, mode = { 'n', 'x' } },
+        { '*', [[<Plug>(asterisk-z*)<cmd>lua require('hlslens').start()<cr>]] },
+        { '#', [[<Plug>(asterisk-z#)<cmd>lua require('hlslens').start()<CR>nzv]] },
+        { 'g*', [[<Plug>(asterisk-gz*)<cmd>lua require('hlslens').start()<CR>nzv]] },
+        { 'g#', [[<Plug>(asterisk-gz#)<cmd>lua require('hlslens').start()<CR>nzv]] },
+      }
+    end,
+    opts = {
+      nearest_only = true,
+      calm_down = true,
+    },
+  }, -- nvim-hlslens
 }
+
