@@ -25,10 +25,10 @@ github = "romkatv/zsh-defer"
 apply = ["source"]
 profiles = ["eager"]
 
-[plugins.lazy]
-local = "~/.config/zsh"
-use = ["lazy.zsh"]
-profiles = ["eager"]
+# [plugins.lazy]
+# local = "~/.config/zsh"
+# use = ["lazy.zsh"]
+# profiles = ["eager"]
 
 [plugins.shortcutrc]
 local = "~/.config/shell"

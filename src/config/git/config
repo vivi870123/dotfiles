@@ -152,3 +152,6 @@
 [credential "https://gist.github.com"]
 	helper = 
 	helper = !/usr/bin/gh auth git-credential
+[user]
+	email = vivi870123@gmail.com
+	name = Christo Rogers-Wright

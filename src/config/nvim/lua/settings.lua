@@ -10,8 +10,8 @@ vim.g.mapleader = ' ' -- Leader key
 vim.g.maplocalleader = ';' -- Local leader
 
 -- Title
-function mines.modified_icon() return vim.bo.modified and mines.ui.icons.misc.plus or '' end
-o.titlestring = ' %{fnamemodify(getcwd(), ":t")}%( %{v:lua.mines.modified_icon()}%)'
+-- function mines.modified_icon() return vim.bo.modified and mines.ui.icons.misc.plus or '' end
+-- o.titlestring = ' %{fnamemodify(getcwd(), ":t")}%( %{v:lua.mines.modified_icon()}%)'
 o.titleold = fn.fnamemodify(vim.loop.os_getenv 'SHELL', ':t')
 o.title = true
 o.titlelen = 70

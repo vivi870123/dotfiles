@@ -47,18 +47,9 @@ download_utils() {
 
 verify_os() {
   local os_name="$(get_os)"
-  local os_version="$(get_os_version)"
 
-  # Check if the OS is `Fedora` and supported
-  if [ "$os_name" == "fedora" ]; then
-    if is_supported_version "$os_version" "$MINIMUM_UBUNTU_VERSION"; then
-      print_success "$os_name $os_version is supported"
-      return 0
-    else
-      print_error "Minimum Ubuntu $MINIMUM_UBUNTU_VERSION is required (current is $os_version)"
-    fi
   # Check if the OS is `Artix` and supported
-  elif [ "$os_name" == "arch" ]; then
+  if [ "$os_name" == "arch" ]; then
     print_success "$os_name $os_version is supported"
     return 0
   else
@@ -85,13 +76,14 @@ main() {
   # Ask user for sudo
   print_title "Sudo Access"
   ask_for_sudo
+  wait 5
 
   # Verify OS and OS version
   print_title "Verifying OS"
   verify_os || exit 1
 
   # Start installation
-  . "$HOME/.dotfiles/scripts/system/$(get_os)/install.sh"
+  . "$HOME/.dotfiles/scripts/system/arch/install.sh"
 }
 
 main "$@"

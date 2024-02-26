@@ -18,9 +18,6 @@ copy_public_ssh_key_to_clipboard() {
   if cmd_exists "wl-copy"; then
     wl-copy $1
     print_result $? "Copy public SSH key to clipboard"
-  elseif cmd_exists "xclip"; then
-    xclip -selection clip <"$1"
-    print_result $? "Copy public SSH key to clipboard"
   else
     print_warning "Please copy the public SSH key ($1) to clipboard"
   fi

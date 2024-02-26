@@ -44,6 +44,7 @@ create_symlink() {
 
 create_directories() {
   declare -a DIRECTORIES=(
+    "$HOME/.config"
     "$HOME/.ssh"
     "$HOME/.local/bin"
     "$HOME/.local/bin/statusbar"
