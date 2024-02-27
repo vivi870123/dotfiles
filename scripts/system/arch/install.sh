@@ -7,7 +7,7 @@
 . "$HOME/.dotfiles/scripts/utils/arch.sh"
 
 # Setup symlinks
-# . "$HOME/.dotfiles/scripts/system/symlink.sh"
+. "$HOME/.dotfiles/scripts/system/symlink.sh"
 
 # Git: Local config
 # . "$HOME/.dotfiles/scripts/system/git-local-config.sh"

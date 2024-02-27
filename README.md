@@ -1,14 +1,14 @@
 The following are the UI components of this setup:
 
-- window manager: [dwl](https://swaywm.org/)
-- statusbar: [dwlb](https://github.com/Alexays/Waybar)
-- application launcher: [bemenu](https://codeberg.org/dnkl/fuzzel)
-- notification daemon: [mako](https://github.com/emersion/mako) or dunst
-- lockscreen: [swaylock-effects](https://github.com/mortie/swaylock-effects)
+- WM: [dwl](https://swaywm.org/)
+- Topbar: [dwlb](https://github.com/Alexays/Waybar)
+- launcher: [bemenu](https://codeberg.org/dnkl/fuzzel)
+- notification: [mako](https://github.com/emersion/mako) or dunst
+- lockscreen: [swaylock](https://github.com/mortie/swaylock-effects)
 
 The following are the programs used in this setup:
 
-- terminal: [kitty](https://sw.kovidgoyal.net/kitty/)
+- terminal: [foot](https://sw.kovidgoyal.net/kitty/)
 - editor: [neovim](https://neovim.io/)
 - browsers: [firefox](https://qutebrowser.org), [google-chrome](https://qutebrowser.org/)
 - email client: [neomutt](https://neomutt.org/)
