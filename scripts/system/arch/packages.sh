@@ -50,7 +50,7 @@ install_pacman_packages() {
     pacman_install "imagemagick" "An image viewing/manipulation program."
     pacman_install "glow" "glow: Command-line markdown renderer"
     pacman_install "fontforge" "Full-featured outline and bitmap font editor."
-    pacman_install "diff-so-fancy", "diff-so-fancy: Good-looking diffs with diff-highlight and more."
+    pacman_install "diff-so-fancy" "diff-so-fancy: Good-looking diffs with diff-highlight and more."
     pacman_install "gnome-keyring" "gnome-keyring: Serves as the system keyring."
     pacman_install "bc" "bc: Mathematics language used for the dropdown calculator."
     pacman_install "calcurse" "calcurse: Terminal-based organizer"
@@ -94,6 +94,7 @@ install_pacman_packages() {
     pacman_install "transmission-cli" "transmission-cli: BitTorrent client (CLI tools, daemon and web client)"
     pacman_install "gammastep" "gammastep: Adjust the color temperature of your screen according to your surroundings."
     pacman_install "bemenu" "bemenu: Dynamic menu library and client program inspired by dmenu"
+    pacman_install "bemenu-wayland" "bemenu-wayland: Wayland (wlroots-based compositors) renderer for bemenu"
     pacman_install "wlroots" "wlroots: Modular Wayland compositor library"
     pacman_install "wtype" "wtype: Xdotool for wayland"
     pacman_install "wayland-protocols" "wayland-protocols: Specifications of extended wayland protocols"
@@ -102,42 +103,40 @@ install_pacman_packages() {
     pacman_install "grim" "grim: Screenshot utility for Wayland"
     pacman_install "swappy" "swappy: A Wayland native snapshot editing tool"
     pacman_install "slurp" "slurp: Select a region in a Wayland compositor"
-    pacman_install "light" "light: Program to easily change brightness on backlight-controllers."
     pacman_install "tllist" "tllist: A typed linked c header file"
     pacman_install "xdg-utils" "xdg-utils - command line tools that assist application with a variety of desktop integration tasks"
     pacman_install "xdg-user-dirs" "xdg-user-dirs - manage user directories"
     pacman_install "yq" "yq - Command-line YAML, XML, TOML processor - jq wrapper for YAML/XML/TOML documents"
     pacman_install "cargo-update" "yq - A cargo subcommand for checking and applying updates to installed executables"
     pacman_install "fzf" "fzf: Fuzzy finder tool"
-    pacman_install "libgit" "libgit - A linkable library for git"
+    pacman_install "libgit2" "libgit - A linkable library for git"
     pacman_install "github-cli" "gh - The GitHub CLI"
+    pacman_install "ninja" "ninja - Small build system with a focus on speed"
+    pacman_install "meson" "meson - High productivity build system"
+    pacman_install "swaybg" "swaybg:  Wallpaper tool for Wayland compositors"
+    pacman_install "pamixer" "pamixer: Pulseaudio command-line mixer like amixer"
+    pacman_install "go" "go: Core compiler tools for the Go programming language"
 }
 
 install_aur_packages() {
     print_title "Installing aur packages"
     aur_install "lf-git" "lf-git: Extensive TUI file manager that everyone likes."
     aur_install "librewolf-bin" "librewolf-bin: Community fork or firefox which also comes with ad-blocking and other sensible and necessary features by default."
-    # aur_install "arkenfox-user.js" "arkenfox-user.js: provides hardened security settings for Firefox and Librewolf to avoid Mozilla spyware and general web fingerprinting."
-    aur_install "sc-im" "sc-im: Excel-like terminal spreadsheet manager."
     aur_install "task-spooler" "task-spooler: queues commands or files for download."
     aur_install "simple-mtpfs" "simple-mtpfs: enables the mounting of cell phones."
     aur_install "htop-vim" "htop-vim: graphical and colorful system monitor."
-    aur_install "tremc-git" "tremc-git: Curses interface for transmission - python3 fork of transmission-remote-cli"
-    aur_install "networkmanager-dmenu-git" "networkmanager-dmenu-git: Control NetworkManager via dmenu"
-    aur_install "wbg" "wbg: Wallpaper application for wlroots based Wayland compositors"
-    aur_install "pamixer" "pamixer: Pulseaudio command-line mixer like amixer"
     aur_install "clipman" "clipman: clipboard manager for Wayland"
     aur_install "wl-color-picker" "wl-color-picker: A wayland color picker that also works on wlroots"
     aur_install "wlr-randr" "wlr-randr: Utility to manage outputs of a Wayland compositor"
-    # aur_install "mmv" "mmv: multiple move files"
-    aur_install "ghq" "ghq: Remote repository management made easy"
+    aur_install "light" "light: Program to easily change brightness on backlight-controllers."
+    aur_install "tremc-git" "tremc-git: Curses interface for transmission - python3 fork of transmission-remote-cli"
+    aur_install "ctpv" "ctpv: Image previews for lf file manager"
 
-
-  # Themes, Icons, Cursor & Fonts
-  aur_install "gtk-theme-arc-gruvbox-git" "gtk-theme-arc-gruvbox-git: dark GTK theme"
-  aur_install "whitesur-icon-theme" "whitesur-icon-theme: MacOS Big Sur like icon theme for linux desktops"
-  aur_install "whitesur-cursor-theme-git" "whitesur-cursor-theme-git: WhiteSur cursors theme for linux desktops"
-  aur_install "whitesur-gtk-theme" "whitesur-gtk-theme: A macOS BigSur-like theme for your GTK apps"
+    # Themes, Icons, Cursor & Fonts
+    # aur_install "gtk-theme-arc-gruvbox-git" "gtk-theme-arc-gruvbox-git: dark GTK theme"
+    # aur_install "whitesur-icon-theme" "whitesur-icon-theme: MacOS Big Sur like icon theme for linux desktops"
+    # aur_install "whitesur-cursor-theme-git" "whitesur-cursor-theme-git: WhiteSur cursors theme for linux desktops"
+    # aur_install "whitesur-gtk-theme" "whitesur-gtk-theme: A macOS BigSur-like theme for your GTK apps"
 }
 
 install_cargo_packages() {
@@ -169,6 +168,12 @@ install_git_packages() {
     done
 }
 
+install_modified_lf() {
+    print_title "Installing LF"
+
+    execute "Core compiler tools for the Go programming language" "Install LF mod w/ pixsel support"
+}
+
 ### This is how everything happens in an intuitive format and order.
 
 #==================================
@@ -178,7 +183,7 @@ print_section "Package installation"
 
 # Refresh Keys
 print_title "Refresh keys"
-# refresh_keys
+refresh_keys
 
 # Update pacman
 print_title "Updating packages"
@@ -190,7 +195,8 @@ print_title "Updating packages"
 # install_aur_helper
 # install_pacman_packages
 # rust_development
-# install_cargo_packages
+install_cargo_packages
 # install_flatpack
 # install_aur_packages
 # install_git_packages
+# install_modified_lf

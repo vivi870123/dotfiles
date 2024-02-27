@@ -1,0 +1,51 @@
+#!/bin/sh
+
+opts="Select Area\nSelect Screen\nFull Screen"
+snipping=$(echo -e $opts | bemenu -p "Snipping tool")
+if [[ $snipping == "" ]]; then
+    exit 0
+fi
+PICTURE_DIR="$HOME/Pictures/screenshots/"
+temp="/tmp"
+fileName=$(echo "$temp/$(date +'%s_grim.png')")
+
+# function
+opts_mod(){
+    mods="Copy to clipboard\nEdit screenshot\nSave"
+    mods_la=$(echo -e $mods | bemenu -p "Options:")
+    if [[ $mods_la == "" ]]; then
+	exit 0
+    fi
+
+    case $mods_la in
+	"Edit screenshot") swappy -f $1;;
+	"Save") cp $1 $PICTURE_DIR;;
+	"Copy to clipboard") wl-copy < $1 -t image/png;;
+    esac
+    notify-send "Finish!"
+}
+
+full_screen(){
+    attualFile=$fileName
+    grim $attualFile
+    opts_mod "$attualFile"
+}
+
+selection_screen(){
+    attualFile=$fileName
+    grim -o $(slurp -f %o -or) $attualFile
+    opts_mod "$attualFile"
+}
+
+selection_area(){
+    attualFile=$fileName
+    grim -g "$(slurp)" $attualFile
+    opts_mod "$attualFile"
+}
+
+# main program
+case $snipping in
+    "Full Screen") full_screen;;
+    "Select Screen") selection_screen;;
+    "Select Area") selection_area;;
+esac

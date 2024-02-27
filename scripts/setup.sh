@@ -76,7 +76,6 @@ main() {
   # Ask user for sudo
   print_title "Sudo Access"
   ask_for_sudo
-  wait 5
 
   # Verify OS and OS version
   print_title "Verifying OS"

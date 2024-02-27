@@ -108,61 +108,7 @@ widget::history() {
     zle -R -c # refresh screen
 }
 
-widget::ghq::source() {
-    local session color icon green="\e[32m" blue="\e[34m" reset="\e[m" checked="\U000f0132" unchecked="\U000f0131"
-    local sessions=($(tmux list-sessions -F "#S" 2>/dev/null))
-
-    ghq list | sort | while read -r repo; do
-        session="${repo//[:. ]/-}"
-        color="$blue"
-        icon="$unchecked"
-        if (( ${+sessions[(r)$session]} )); then
-            color="$green"
-            icon="$checked"
-        fi
-        printf "$color$icon %s$reset\n" "$repo"
-    done
-}
-widget::ghq::select() {
-    local root="$(ghq root)"
-    widget::ghq::source | fzf --exit-0 --preview="fzf-preview-git ${(q)root}/{+2}" --preview-window="right:60%" | cut -d' ' -f2-
-}
-widget::ghq::dir() {
-    local selected="$(widget::ghq::select)"
-    if [[ -z "$selected" ]]; then
-        return
-    fi
-
-    local repo_dir="$(ghq list --exact --full-path "$selected")"
-    BUFFER="cd ${(q)repo_dir}"
-    zle accept-line
-    zle -R -c # refresh screen
-}
-widget::ghq::session() {
-    local selected="$(widget::ghq::select)"
-    if [[ -z "$selected" ]]; then
-        return
-    fi
-
-    local repo_dir="$(ghq list --exact --full-path "$selected")"
-    local session_name="${selected//[:. ]/-}"
-
-    if [[ -z "$TMUX" ]]; then
-        BUFFER="tmux new-session -A -s ${(q)session_name} -c ${(q)repo_dir}"
-        zle accept-line
-    elif [[ "$(tmux display-message -p "#S")" != "$session_name" ]]; then
-        tmux new-session -d -s "$session_name" -c "$repo_dir" 2>/dev/null
-        tmux switch-client -t "$session_name"
-    else
-        BUFFER="cd ${(q)repo_dir}"
-        zle accept-line
-    fi
-    zle -R -c # refresh screen
-}
-
 zle -N widget::history
-zle -N widget::ghq::dir
-zle -N widget::ghq::session
 zle -N forward-kill-word
 
 
@@ -174,8 +120,6 @@ bindkey -v # enables vi mode, using -e = emacs
 export KEYTIMEOUT=1
 
 bindkey "^R"        widget::history                 # C-r
-bindkey "^G"        widget::ghq::session            # C-g
-bindkey "^[g"       widget::ghq::dir                # Alt-g
 bindkey "^A"        beginning-of-line               # C-a
 bindkey "^E"        end-of-line                     # C-e
 bindkey "^K"        kill-line                       # C-k

@@ -15,6 +15,6 @@ if [[ -z "$PATH_WALLPAPER" ]] || [[ ! -f "$PATH_WALLPAPER" ]]; then
   exit 1
 else
   ln -sf "$PATH_WALLPAPER" "$SYMLINK_WALLPAPER"
-  swaymsg reload
+  swaybg -i "$SYMLINK_WALLPAPER"
   exit 0
 fi
