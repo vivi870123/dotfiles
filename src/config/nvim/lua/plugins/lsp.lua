@@ -91,10 +91,7 @@ return {
     'jay-babu/mason-null-ls.nvim',
     dependencies = {
       'mason.nvim',
-      { -- none-ls
-        'nvimtools/none-ls.nvim',
-        dependencies = { 'nvim-lua/plenary.nvim' },
-      },
+      'nvimtools/none-ls.nvim',
     },
     event = { 'BufReadPre', 'BufNewFile' },
     config = function()
@@ -104,14 +101,12 @@ return {
         automatic_setup = true,
         automatic_installation = true,
         ensure_installed = {
-          'goimports',
-          'luacheck',
           'prettier',
-          'shfmt',
-          'shellharden',
-          'shellcheck',
+          -- 'shfmt',
+          -- 'shellharden',
           'stylua',
-
+          'selene',
+          'bash-language-server',
           'lua-language-server',
           'intelephense'
         },

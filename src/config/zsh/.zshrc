@@ -29,6 +29,7 @@ path+=(
 path=(
     "$HOME/.local/bin"(N-/)
     "$HOME/.local/bin/statusbar"(N-/)
+    "$HOME/.local/bin/dmenu"(N-/)
     "$HOME/.local/share/flatpak/exports/share"(N-/)
     "$CARGO_HOME/bin"(N-/)
     "$GOPATH/bin"(N-/)

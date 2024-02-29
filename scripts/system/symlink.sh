@@ -80,7 +80,6 @@ local_bin_symlink() {
     "bin/shortcuts"
     "bin/startw"
     "bin/transadd"
-    "bin/prompt"
     "bin/unix"
 
     "bin/dmenu/mounter"
@@ -94,6 +93,7 @@ local_bin_symlink() {
     "bin/dmenu/unicode"
     "bin/dmenu/wifi"
     "bin/dmenu/screenshot"
+    "bin/dmenu/prompt"
 
     "bin/statusbar/sb-battery"
     "bin/statusbar/sb-clock"
@@ -129,7 +129,6 @@ config_symlink() {
     "config/gammastep"
     "config/gh"
     "config/git"
-    "config/gitui"
     "config/gtk-2.0"
     "config/gtk-3.0"
     "config/htop"

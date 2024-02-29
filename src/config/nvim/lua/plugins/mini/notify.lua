@@ -1,6 +1,7 @@
 return {
   'echasnovski/mini.notify',
   lazy = false,
+  enabled = false,
   config = function()
     local filterout_lua_diagnosing = function(notif_arr)
       local not_diagnosing = function(notif) return not vim.startswith(notif.msg, 'lua_ls: Diagnosing') end

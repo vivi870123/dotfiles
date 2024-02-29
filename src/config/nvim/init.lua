@@ -26,6 +26,7 @@ _G.mines = mines or namespace
 _G.map = vim.keymap.set
 _G.P = vim.print
 
+
 _G.RELOAD = function(pkg)
   if vim then
     if vim.is_thread() then
@@ -49,7 +50,6 @@ require 'highlights'
 require 'ui'
 require 'settings'
 require 'util.mini'
-
 
 local lazypath = sys.data .. '/lazy/lazy.nvim'
 if not vim.loop.fs_stat(lazypath) then

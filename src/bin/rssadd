@@ -16,3 +16,4 @@ if awk '{print $1}' "$RSSFILE" | grep "^$url$" >/dev/null; then
 else
   echo "$url" >>"$RSSFILE" && notify-send "RSS feed added."
 fi
+

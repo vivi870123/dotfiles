@@ -1,3 +1,5 @@
+# vim: set ft=gitconfig:
+
 [init]
   defaultBranch = main
 
@@ -143,15 +145,3 @@
 
 [url "git://gist.github.com/"]
   insteadOf = "gist:"
-
-# [credential]
-  # helper = /usr/lib/git-core/git-credential-libsecret
-[credential "https://github.com"]
-	helper = 
-	helper = !/usr/bin/gh auth git-credential
-[credential "https://gist.github.com"]
-	helper = 
-	helper = !/usr/bin/gh auth git-credential
-[user]
-	email = vivi870123@gmail.com
-	name = Christo Rogers-Wright

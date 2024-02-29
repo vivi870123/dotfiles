@@ -427,6 +427,10 @@ export RIPGREP_CONFIG_PATH="$XDG_CONFIG_HOME/rg/.ripgreprc" # RG
 ### wget ###
 export WGETRC="$XDG_CONFIG_HOME/wget/wgetrc" # WGET
 
+
+### NVM ###
+[ -z "$NVM_DIR" ] && export NVM_DIR="$HOME/.nvm"
+
 ### tealdeer ###
 export TEALDEER_CONFIG_DIR="$XDG_CONFIG_HOME/tealdeer"
 

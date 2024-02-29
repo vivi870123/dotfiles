@@ -2,7 +2,8 @@
 
 swaybg -i  /home/chris/.local/share/bg <&- &
 
-pipewire <&- &
+# pipewire <&- &
+pipewire &
 
 wl-paste --watch clipman store &
 
