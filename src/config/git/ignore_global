@@ -38,5 +38,5 @@ Session.vim
 
 .ccls-cache/
 .private
-
+~/.config/gh/hosts.yml
 # vim:filetype=conf
