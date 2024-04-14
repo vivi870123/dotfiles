@@ -1,7 +1,5 @@
 shell = "zsh"
-
 apply = ["defer"]
-
 [templates]
 defer = """
 __sheldon::{{ name }}() {
@@ -19,6 +17,7 @@ zsh-defer -a __sheldon::{{ name }}
 ####################
 # eager
 ####################
+
 
 [plugins.zsh-defer]
 github = "romkatv/zsh-defer"
@@ -84,19 +83,13 @@ profiles = ["update"]
 github = "hlissner/zsh-autopair"
 profiles = ["lazy"]
 
+[plugins.starship]
+inline = 'eval "$(starship init zsh)"'
 
-# local
+## local
 [plugins.compinit]
 inline = """
 autoload -Uz compinit
 zsh-defer -a -t0.01 compinit -d "$XDG_STATE_HOME/zcompdump"
 """
 profiles = ["lazy"]
-
-
-####################
-# others
-####################
-
-[plugins.starship]
-inline = 'eval "$(starship init zsh)"'

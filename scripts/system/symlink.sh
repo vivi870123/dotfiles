@@ -137,7 +137,6 @@ config_symlink() {
     "config/mako"
     "config/mpd"
     "config/mpv"
-    "config/navi"
     "config/ncmpcpp"
     "config/networkmanager-dmenu"
     "config/newsboat"
@@ -164,7 +163,7 @@ config_symlink() {
 
 desktop_symlink() {
   execute "rm -rf \
-	  $HOME/.zprofile \
+	  $HOME/.zshenv \
 	  $HOME/.luarc.json \
 	  $HOME/.gitignore \
 	  $HOME/.stylua.toml \
@@ -172,13 +171,16 @@ desktop_symlink() {
 	  $HOME/.gitconfig \
 	  $HOME/.gitconfig.local"
 
-  execute "ln -sf $HOME/.dotfiles/src/config/zsh/zprofile $HOME/.zprofile"
+  execute "ln -sf $HOME/.dotfiles/src/config/zsh/zshenv $HOME/.zshenv"
   execute "ln -sf $HOME/.dotfiles/src/luarc.json $HOME/.luarc.json"
   execute "ln -sf $HOME/.dotfiles/src/stylua.toml $HOME/.stylua.toml"
   execute "ln -sf $HOME/.dotfiles/src/ignore $HOME/.ignore"
   execute "ln -sf $HOME/.dotfiles/src/editorconfig $HOME/.editorconfig"
   execute "ln -sf $HOME/.config/git/config $HOME/.gitconfig"
   execute "ln -sf $HOME/.config/git/config.local $HOME/.gitconfig.local"
+
+  execute "source $HOME/.config/zsh/zshenv"
+  execute "source $HOME/.config/zsh/.zshrc"
 }
 
 #==================================

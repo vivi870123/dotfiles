@@ -1,7 +1,7 @@
 # vim: fdm=marker fdl=0
 
 ### ls-colors ###
-export LS_COLORS="di=01;34:ln=01;36:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=01;05;37;41:mi=01;05;37;41:su=37;41:sg=30;43:tw=30;42:ow=34;42:st=37;44:ex=01;32"
+# export LS_COLORS="di=01;34:ln=01;36:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=01;05;37;41:mi=01;05;37;41:su=37;41:sg=30;43:tw=30;42:ow=34;42:st=37;44:ex=01;32"
 
 #-------------------------------------------------------------------------------
 # Functions {{{
@@ -9,7 +9,7 @@ export LS_COLORS="di=01;34:ln=01;36:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40
 # A Handful of very useful functions courtesy of
 # https://github.com/jdsimcoe/dotfiles/blob/master/.zshrc
 function port() {
-  lsof -n -i ":$@" | grep LISTEN
+  lsof -n ":$@" | grep LISTEN
 }
 
 # neovim
@@ -175,6 +175,7 @@ fstash() {
 # Aliases {{{
 #-------------------------------------------------------------------------------
 alias open='xdg-open'
+alias firefox='flatpak run org.mozilla.firefox'
 
 alias ref="shortcuts >/dev/null; source \${XDG_CONFIG_HOME:-\$HOME/.config}/shell/shortcutrc ; source \${XDG_CONFIG_HOME:-\$HOME/.config}/shell/zshnameddirrc"
 
@@ -284,35 +285,11 @@ alias diffall='diff --new-line-format="+%L" --old-line-format="-%L" --unchanged-
 alias hgrep="hgrep --hidden --glob='!.git/'"
 # }}}
 #-------------------------------------------------------------------------------
-
-### navi ###
-export NAVI_CONFIG="$XDG_CONFIG_HOME/navi/config.yaml"
-
-__navi_search() {
-  LBUFFER="$(navi --print --query="$LBUFFER")"
-  zle reset-prompt
-}
-zle -N __navi_search
-bindkey '^N' __navi_search
-
-# Use lf to switch directories and bind it to ctrl-o
-lfcd () {
-    tmp="$(mktemp -uq)"
-    trap 'rm -f $tmp >/dev/null 2>&1 && trap - hup int quit term pwr exit' hup int quit term pwr exit
-    lf -last-dir-path="$tmp" "$@"
-    if [ -f "$tmp" ]; then
-        dir="$(cat "$tmp")"
-        [ -d "$dir" ] && [ "$dir" != "$(pwd)" ] && cd "$dir"
-    fi
-}
-bindkey -s '^o' '^ulfcd\n'
-
+# Completion {{{
 #-------------------------------------------------------------------------------
-# Completion
-#-------------------------------------------------------------------------------
-if [[ "$TERM" == "xterm-kitty" ]]; then
-  kitty + complete setup zsh | source /dev/stdin
-fi
+ # if [[ "$TERM" == "xterm-kitty" ]]; then
+   # kitty + complete setup zsh | source /dev/stdin
+ # fi
 
 # persistent reshahing i.e puts new executables in the $path
 # if no command is set typing in a line will cd by default
@@ -351,6 +328,7 @@ bindkey -M menuselect 'h' vi-backward-char
 bindkey -M menuselect 'k' vi-up-line-or-history
 bindkey -M menuselect 'l' vi-forward-char
 bindkey -M menuselect 'j' vi-down-line-or-history
+# }}}
 
 ### Docker ###
 docker() {
@@ -427,10 +405,6 @@ export RIPGREP_CONFIG_PATH="$XDG_CONFIG_HOME/rg/.ripgreprc" # RG
 ### wget ###
 export WGETRC="$XDG_CONFIG_HOME/wget/wgetrc" # WGET
 
-
-### NVM ###
-[ -z "$NVM_DIR" ] && export NVM_DIR="$HOME/.nvm"
-
 ### tealdeer ###
 export TEALDEER_CONFIG_DIR="$XDG_CONFIG_HOME/tealdeer"
 
@@ -455,4 +429,4 @@ if [[ -f "$ZDOTDIR/local.zsh" ]]; then
   source "$ZDOTDIR/local.zsh"
 fi
 
-sheldon::load lazy
+sheldon::load lay

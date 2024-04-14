@@ -4,6 +4,8 @@
 export LC_ALL=en_GB.UTF-8
 export LANG=en_GB.UTF-8
 
+unsetopt GLOBAL_RCS
+
 # Default programs:
 export EDITOR="nvim"
 export BROWSER="org.mozilla.firefox"
@@ -19,6 +21,7 @@ export RUN_LAUNCHER="bemenu-run"
 export MENU="bemenu"
 export BUS_BROWSER="brave --ozone-platform=wayland"
 export MOZ_ENABLE_WAYLAND=1
+export KITTY_ENABLE_WAYLAND=1
 export WMBLOCKS="someblocks"
 export BEMENU_BACKEND="wayland"
 export MOZ_DBUS_REMOTE=1 # fixes firefox is already running, but is not responding
@@ -50,9 +53,14 @@ export GOMODCACHE="$XDG_CACHE_HOME/go/mod"
 export GO111MODULE="on"
 
 ### RUST ###
+export RUST_BACKTRACE=1
 export CARGO_HOME="$XDG_DATA_HOME/cargo"
 export RUSTUP_HOME="$XDG_DATA_HOME/rustup"
 
 ### Deno ###
 export DENO_INSTALL="$XDG_DATA_HOME/deno"
 export DENO_INSTALL_ROOT="$DENO_INSTALL"
+
+export XDG_CURRENT_DESKTOP=dwl # xdg-desktop-portal
+export XDG_SESSION_DESKTOP=dwl # openrc
+export XDG_SESSION_TYPE=wayland # xdg/openrc

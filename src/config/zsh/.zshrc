@@ -31,50 +31,51 @@ path=(
     "$HOME/.local/bin/statusbar"(N-/)
     "$HOME/.local/bin/dmenu"(N-/)
     "$HOME/.local/share/flatpak/exports/share"(N-/)
+    "$HOME/.config/composer/vendor/bin/"(N-/)
     "$CARGO_HOME/bin"(N-/)
     "$GOPATH/bin"(N-/)
     "$DENO_INSTALL/bin"(N-/)
-    "$GEM_HOME/bin"(N-/)
-    "$GHRD_DATA_HOME/bin"(N-/)
     # package manager for neovim
     "$HOME/.local/share/bob/nvim-bin"(N-/)
+    "$HOME/.local/share/fnm/default"(N-/)
     "$path[@]"
 )
 
 fpath=(
-  "$GHRD_DATA_HOME/completions"(N-/)
-  "$XDG_DATA_HOME/zsh/completions"(N-/)
-  "$fpath[@]"
+    "$XDG_DATA_HOME/zsh/completions"(N-/)
+    "$fpath[@]"
 )
 
 ### Options ###
 setopt AUTO_CD
+setopt GLOBDOTS
 setopt RM_STAR_WAIT
 setopt CORRECT                  # command auto-correction
 setopt COMPLETE_ALIASES
+setopt AUTO_PUSHD                # Push the current directory visited on the stack.
+setopt PUSHD_IGNORE_DUPS         # Do not store duplicates in the stack.
+setopt PUSHD_SILENT              # Do not print the directory stack after pushd or popd.
 
 ### history ###
 HISTFILE="$XDG_STATE_HOME/zsh_history"
-# HISTFILE="${XDG_CACHE_HOME:-$HOME/.cache}/zsh/history"
 export HISTSIZE=120000
 export SAVEHIST=100000
 
 # set some history options
 setopt APPEND_HISTORY
-setopt HIST_EXPIRE_DUPS_FIRST
-setopt HIST_IGNORE_ALL_DUPS
-setopt HIST_IGNORE_DUPS
+setopt EXTENDED_HISTORY          # Write the history file in the ':start:elapsed;command' format.
 setopt HIST_IGNORE_SPACE
+setopt HIST_IGNORE_DUPS
+setopt HIST_IGNORE_ALL_DUPS
 setopt HIST_REDUCE_BLANKS
+setopt HIST_EXPIRE_DUPS_FIRST
 setopt HIST_SAVE_NO_DUPS
 setopt HIST_VERIFY
-setopt AUTOPARAMSLASH # tab completing directory appends a slash
-setopt EXTENDED_HISTORY          # Write the history file in the ':start:elapsed;command' format.
 setopt INC_APPEND_HISTORY        # Write to the history file immediately, not when the shell exits
-setopt AUTO_PUSHD                # Push the current directory visited on the stack.
-setopt PUSHD_IGNORE_DUPS         # Do not store duplicates in the stack.
-setopt PUSHD_SILENT              # Do not print the directory stack after pushd or popd.
-
+setopt MAGIC_EQUAL_SUBST
+setopt NO_FLOW_CONTROL
+setopt NO_SHARE_HISTORY # do not share history
+setopt AUTOPARAMSLASH # tab completing directory appends a slash
 
 #-------------------------------------------------------------------------------
 # source
@@ -96,6 +97,14 @@ zshaddhistory() {
     [[ ! "$line" =~ "^(cd|history|j|lazygit|la|ll|ls|rm|rmdir|trash)($| )" ]]
 }
 
+# chpwd() {
+#     printf "\e[34m%s\e[m:\n" "${PWD/$HOME/~}"
+#     if (( ${+commands[eza]} )); then
+#         eza --group-directories-first --icons -a
+#     else
+#         ls -a
+#     fi
+# }
 
 #-------------------------------------------------------------------------------
 # key bindings
@@ -111,7 +120,6 @@ widget::history() {
 
 zle -N widget::history
 zle -N forward-kill-word
-
 
 #-------------------------------------------------------------------------------
 #               VI-MODE

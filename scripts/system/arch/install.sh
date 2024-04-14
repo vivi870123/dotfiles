@@ -7,13 +7,13 @@
 . "$HOME/.dotfiles/scripts/utils/arch.sh"
 
 # Setup symlinks
-. "$HOME/.dotfiles/scripts/system/symlink.sh"
+# . "$HOME/.dotfiles/scripts/system/symlink.sh"
 
 # Git: Local config
 # . "$HOME/.dotfiles/scripts/system/git-local-config.sh"
 
 # Setup packages
-. "$HOME/.dotfiles/scripts/system/arch/packages.sh"
+ . "$HOME/.dotfiles/scripts/system/arch/packages.sh"
 
 # if cmd_exists "git"; then
 # 	if [ "$(git config --get remote.origin.url)" != "$DOTFILES_ORIGIN" ]; then

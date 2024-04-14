@@ -1,0 +1,25 @@
+space       toggle selection of current entry
+v           inverts selections in current directory
+u           unmark all selections
+
+y           copy current entry or selections
+d           cut current entry or selections
+p           paste copied or cut entries to current directory
+c           clear selections
+
+ctrl + u    move half page up
+ctrl + b    move half page down
+ctrl + b    move full page up
+ctrl + f    move full page down
+
+gg          move to top
+G           move to bottom
+
+$           `shell` runs command in shell
+%           `shell-pipe` runs command in shell while piping in and out
+!           `shell-wait` runs command in shell and waits for key press afterwards
+&           `shell-async` runs command in background
+
+sn          sort by name
+ss          sort by size
+st          sort by time

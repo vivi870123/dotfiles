@@ -1,0 +1,30 @@
+p           play / pause
+f           toggle fullscreen
+m           toggle mute
+v           toggle subtitles
+s           screenshot
+shift + s   screenshot w/o subtitles
+ctrl + c    quit
+q           quit, save current position
+o           show progress
+shift + o   toggle show progress
+page up     next chapter
+page down   previous chapter
+.           next frame
+,           previous frame
+ctrl +      increase audio delay
+ctrl -      decrease audio delay
+[           decrease speed
+]           increase speed
+1           decrease contrast
+2           increase contrast
+3           decrease brightness
+4           increase brightness
+5           decrease gamma
+6           increase gamma
+7           decrease saturation
+8           increase saturation
+9           decrease audio volume
+0           increase audio volume
+w           zoom out
+e           zoom in

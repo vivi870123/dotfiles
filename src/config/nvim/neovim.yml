@@ -1,0 +1,20 @@
+base: "lua52"
+
+globals:
+  vim:
+    any: true
+  mines:
+    any: true
+  map:
+    args:
+      - type: any
+      - type: any
+      - type: any
+      - type: table
+        required: false
+  jit:
+    any: true
+  package:
+    any: true
+  MiniPick:
+    any: true

@@ -81,6 +81,7 @@ install_pacman_packages() {
     # pacman_install "socat" "socat: Multipurpose relay"
     pacman_install "moreutils" "moreutils: Collection of useful unix tools."
     pacman_install "wireplumber" "wireplumber: Audio system."
+    pacman_install "wireplumber-openrc" "wireplumber: Audio system."
     pacman_install "pipewire-pulse" "pipewire-pulse: Compatibility with PulseAudio programs."
     pacman_install "pulsemixer" "pulsemixer: Audio controller"
     pacman_install "imv" "imv: Minimalist image viewer."
@@ -121,7 +122,6 @@ install_pacman_packages() {
 
 install_aur_packages() {
     print_title "Installing aur packages"
-    aur_install "lf-git" "lf-git: Extensive TUI file manager that everyone likes."
     aur_install "task-spooler" "task-spooler: queues commands or files for download."
     aur_install "simple-mtpfs" "simple-mtpfs: enables the mounting of cell phones."
     aur_install "clipman" "clipman: clipboard manager for Wayland"
@@ -171,6 +171,12 @@ install_modified_lf() {
     execute "Core compiler tools for the Go programming language" "Install LF mod w/ pixsel support"
 }
 
+install_flapack_programs() {
+    print_title "Installing LF"
+
+    execute "Core compiler tools for the Go programming language" "Install LF mod w/ pixsel support"
+}
+
 ### This is how everything happens in an intuitive format and order.
 
 #==================================
@@ -189,11 +195,12 @@ pacman_synchronize
 #==================================
 # Package Installation
 #==================================
- install_aur_helper
-install_pacman_packages
-rust_development
-install_cargo_packages
-install_flatpack
-install_aur_packages
-install_git_packages
-install_modified_lf
+# install_aur_helper
+# install_flatpack
+# rust_development
+# install_pacman_packages
+
+# install_cargo_packages
+# install_aur_packages
+ install_git_packages
+ install_modified_lf

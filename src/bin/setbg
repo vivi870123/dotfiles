@@ -10,13 +10,13 @@ SYMLINK_WALLPAPER=""$HOME/.local/share/bg""
 # Main
 # Control if argument is empty or file not exist
 if [[ -z "$PATH_WALLPAPER" ]] || [[ ! -f "$PATH_WALLPAPER" ]]; then
-  echo "Picture or path picture is incorrect or missing"
-  echo "Usage : cwall <picture/path picture>"
-  exit 1
+    echo "Picture or path picture is incorrect or missing"
+    echo "Usage : cwall <picture/path picture>"
+    exit 1
 else
-  ln -sf "$PATH_WALLPAPER" "$SYMLINK_WALLPAPER"
-  pidof swaybg && killall swaybg
-  swaybg -m fill -i "$SYMLINK_WALLPAPER" &
-  exit 0
+    ln -sf "$PATH_WALLPAPER" "$SYMLINK_WALLPAPER"
+    pidof swaybg && killall swaybg
+    swaybg -m fill -i "$SYMLINK_WALLPAPER" &
+    exit 0
 
 fi

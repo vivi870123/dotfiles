@@ -13,11 +13,17 @@ mako &
 
 gammastep &
 
+light -S 50 &
+
 dwlb -ipc <&- &
 
 someblocks -p | dwlb -status-stdin all &
 
 foot --log-level=none --server <&- &
 
-dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
-systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
+if command -v dbus-update-activation-environment >/dev/null; then
+    dbus-update-activation-environment XDG_CURRENT_DESKTOP XDG_SESSION_DESKTOP XDG_SESSION_TYPE
+fi
+
+# dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
+# systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP

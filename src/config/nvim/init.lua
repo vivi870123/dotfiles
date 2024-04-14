@@ -115,4 +115,4 @@ vim.cmd.packadd 'cfilter'
 ------------------------------------------------------------------------------------------------------
 -- Colour Scheme {{{1
 ------------------------------------------------------------------------------------------------------
-mines.pcall('theme failed to load because', vim.cmd.colorscheme, 'doom-one') -- night-owl
+mines.pcall('theme failed to load because', vim.cmd.colorscheme, 'kanagawa-lotus') -- night-owl

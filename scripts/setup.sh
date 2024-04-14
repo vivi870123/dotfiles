@@ -49,7 +49,7 @@ verify_os() {
   local os_name="$(get_os)"
 
   # Check if the OS is `Artix` and supported
-  if [ "$os_name" == "arch" ]; then
+  if [ "$os_name" == "artix" ]; then
     print_success "$os_name $os_version is supported"
     return 0
   else

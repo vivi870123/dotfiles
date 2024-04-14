@@ -296,7 +296,7 @@ mines.getcwd = uv.cwd
 
 function mines.forward_path(path) return path end
 
-function mines.buf_get_name(buf) return vim.api.nvim_buf_get_name(0) end
+function mines.buf_get_name() return vim.api.nvim_buf_get_name(0) end
 
 function mines.get_current_file_path() return mines.buf_get_name(vim.api.nvim_get_current_buf()) end
 
